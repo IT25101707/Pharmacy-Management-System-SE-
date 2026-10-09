@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Login - Pharmacy Management System</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <!-- Login CSS -->
+    <link rel="stylesheet" href="/login.css">
+
+</head>
+
+<body class="login-page">
+
+<div class="login-background">
+
+    <!-- =====================================================
+         DECORATIVE DOTS
+         ===================================================== -->
+
+    <div class="decorative-dots dots-left">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div class="decorative-dots dots-right">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+
+    <!-- =====================================================
+         LOGIN CARD
+         ===================================================== -->
+
+    <div class="login-card">
+
+
+        <!-- =================================================
+             LEFT IMAGE SECTION
+             ================================================= -->
+
+        <div class="login-image-section">
+
+            <div class="image-overlay"></div>
+
+            <div class="pharmacy-image-content">
+
+                <div class="pharmacy-badge">
+                    <i class="fa-solid fa-plus"></i>
+                </div>
+
+                <h2>
+                    Your Health,
+                    <br>
+                    Our Priority.
+                </h2>
+
+                <p>
+                    Manage medicines, stock, prescriptions and sales easily in one place.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <!-- =================================================
+             RIGHT LOGIN SECTION
+             ================================================= -->
+
+        <div class="login-form-section">
+
+
+            <!-- =================================================
+                 LOGO
+                 ================================================= -->
+
+            <div class="login-logo">
+
+                <div class="login-logo-icon">
+                    <i class="fa-solid fa-prescription-bottle-medical"></i>
+                </div>
+
+            </div>
+
+
+            <!-- =================================================
+                 TITLE
+                 ================================================= -->
+
+            <h1>
+                Pharmacy Management
+                <br>
+                System
+            </h1>
+
+            <p class="login-subtitle">
+                Manage your pharmacy easily and efficiently
+            </p>
+
+
+            <!-- =================================================
+                 LOGIN FORM
+                 ================================================= -->
+
+            <form id="loginForm"
+                  class="login-form">
+
+
+                <!-- USERNAME -->
+
+                <div class="form-group">
+
+                    <label for="username">
+                        Username
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-regular fa-user input-icon"></i>
+
+                        <input
+                                type="text"
+                                id="username"
+                                name="username"
+                                placeholder="Enter username"
+                                autocomplete="username"
+                                required>
+
+                    </div>
+
+                </div>
+
+
+                <!-- PASSWORD -->
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-solid fa-lock input-icon"></i>
+
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="Enter password"
+                                autocomplete="current-password"
+                                required>
+
+                        <button
+                                type="button"
+                                class="password-toggle"
+                                onclick="togglePassword()"
+                                aria-label="Show password">
+
+                            <i class="fa-regular fa-eye"
+                               id="passwordEye"></i>
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <!-- =================================================
+                     ERROR MESSAGE
+                     ================================================= -->
+
+                <div id="loginError"
+                     class="login-error"
+                     style="display: none;">
+                </div>
+
+
+                <!-- =================================================
+                     LOGIN BUTTON
+                     ================================================= -->
+
+                <button
+                        type="submit"
+                        id="loginButton"
+                        class="login-button">
+
+                    <i class="fa-solid fa-right-to-bracket"></i>
+
+                    <span>
+                        Login
+                    </span>
+
+                </button>
+
+            </form>
+
+
+            <!-- =================================================
+                 SECURITY NOTE
+                 ================================================= -->
+
+            <div class="security-note">
+
+                <i class="fa-solid fa-shield-halved"></i>
+
+                <span>
+                    Secure &amp; Protected Access
+                </span>
+
+            </div>
+
+
+            <!-- =================================================
+                 FOOTER
+                 ================================================= -->
+
+            <p class="login-footer">
+                Pharmacy Management System
+            </p>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
+
+<script>
+
+    // =====================================================
+    // LOGIN
+    // =====================================================
+
+    document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (event) {
+
+            event.preventDefault();
+
+
+            // Get username and password
+
+            const username =
+                document
+                    .getElementById("username")
+                    .value
+                    .trim();
+
+            const password =
+                document
+                    .getElementById("password")
+                    .value;
+
+
+            // Elements
+
+            const errorMessage =
+                document.getElementById("loginError");
+
+            const loginButton =
+                document.getElementById("loginButton");
+
+
+            // Clear previous error
+
+            errorMessage.style.display = "none";
+            errorMessage.textContent = "";
+
+
+            // Disable login button
+
+            loginButton.disabled = true;
+
+            loginButton.innerHTML =
+                '<i class="fa-solid fa-spinner fa-spin"></i>' +
+                '<span>Logging in...</span>';
+
+
+            try {
+
+                // =================================================
+                // CALL SPRING BOOT LOGIN API
+                // =================================================
+
+                const response = await fetch(
+                    "/api/auth/login?username="
+                    + encodeURIComponent(username)
+                    + "&password="
+                    + encodeURIComponent(password),
+                    {
+                        method: "POST"
+                    }
+                );
+
+
+                // =================================================
+                // LOGIN SUCCESS
+                // =================================================
+
+                if (response.ok) {
+
+                    const user =
+                        await response.json();
+
+
+                    // Store logged-in user
+
+                    sessionStorage.setItem(
+                        "user",
+                        JSON.stringify(user)
+                    );
+
+
+                    // Redirect to dashboard
+
+                    window.location.href = "/dashboard";
+
+                    return;
+                }
+
+
+                // =================================================
+                // LOGIN FAILED
+                // =================================================
+
+                let message =
+                    "Invalid username or password.";
+
+
+                try {
+
+                    const error =
+                        await response.text();
+
+                    if (error && error.trim() !== "") {
+
+                        message = error;
+
+                    }
+
+                } catch (e) {
+
+                    console.log(
+                        "Could not read error response:",
+                        e
+                    );
+
+                }
+
+
+                errorMessage.textContent = message;
+
+                errorMessage.style.display = "block";
+
+
+            } catch (error) {
+
+                console.error(
+                    "Login error:",
+                    error
+                );
+
+
+                errorMessage.textContent =
+                    "Unable to connect to the server. Please try again.";
+
+                errorMessage.style.display =
+                    "block";
+
+
+            } finally {
+
+                // Enable button again
+
+                loginButton.disabled = false;
+
+                loginButton.innerHTML =
+                    '<i class="fa-solid fa-right-to-bracket"></i>' +
+                    '<span>Login</span>';
+
+            }
+
+        });
+
+
+    // =====================================================
+    // PASSWORD SHOW / HIDE
+    // =====================================================
+
+    function togglePassword() {
+
+        const password =
+            document.getElementById("password");
+
+        const eye =
+            document.getElementById("passwordEye");
+
+
+        if (password.type === "password") {
+
+            password.type = "text";
+
+            eye.classList.remove("fa-eye");
+
+            eye.classList.add("fa-eye-slash");
+
+        } else {
+
+            password.type = "password";
+
+            eye.classList.remove("fa-eye-slash");
+
+            eye.classList.add("fa-eye");
+
+        }
+
+    }
+
+</script>
+
+</body>
+
+</html>

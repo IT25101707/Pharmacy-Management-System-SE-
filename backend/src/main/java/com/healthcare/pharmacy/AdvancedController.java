@@ -1,0 +1,57 @@
+package com.healthcare.pharmacy;
+
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.*;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.springframework.web.bind.annotation.*;
+import java.util.*;
+
+@RestController @RequestMapping("/api")
+public class AdvancedController {
+  private final JdbcTemplate db; private final TransactionTemplate tx;
+  AdvancedController(JdbcTemplate db,TransactionTemplate tx){this.db=db;this.tx=tx;}
+  @SuppressWarnings("unchecked") Map<String,Object> user(HttpServletRequest r){return (Map<String,Object>)r.getAttribute("user");}
+  String role(HttpServletRequest r){return String.valueOf(user(r).get("role"));}
+  long uid(HttpServletRequest r){return Long.parseLong(String.valueOf(user(r).get("id")));}
+  long customer(HttpServletRequest r){Object x=user(r).get("customerId");if(x==null)throw new ApiController.ApiException(HttpStatus.FORBIDDEN,"Customer profile is not linked");return Long.parseLong(String.valueOf(x));}
+  void allow(HttpServletRequest r,String...roles){if(!Arrays.asList(roles).contains(role(r)))throw new ApiController.ApiException(HttpStatus.FORBIDDEN,"Access denied");}
+  @ExceptionHandler(ApiController.ApiException.class) ResponseEntity<?> apiError(ApiController.ApiException e){return ResponseEntity.status(e.status).body(Map.of("message",e.getMessage()));}
+
+  @GetMapping("/advanced/overview") Object overview(HttpServletRequest r){allow(r,"MANAGER","INVENTORY","FINANCE","PHARMACIST","CASHIER");return Map.of(
+    "transfers",db.queryForList("SELECT t.*,m.name medicine,fb.name from_branch,tb.name to_branch FROM stock_transfers t JOIN medicines m ON m.id=t.medicine_id JOIN branches fb ON fb.id=t.from_branch_id JOIN branches tb ON tb.id=t.to_branch_id ORDER BY t.id DESC"),
+    "quotes",db.queryForList("SELECT q.*,s.name supplier,m.name medicine FROM supplier_quotes q JOIN suppliers s ON s.id=q.supplier_id JOIN medicines m ON m.id=q.medicine_id ORDER BY m.name,q.unit_price"),
+    "complaints",db.queryForList("SELECT x.*,c.full_name customer FROM complaints x JOIN customers c ON c.id=x.customer_id ORDER BY x.id DESC"),
+    "schedules",db.queryForList("SELECT x.*,u.full_name staff,b.name branch FROM staff_schedules x JOIN users u ON u.id=x.user_id JOIN branches b ON b.id=x.branch_id ORDER BY shift_date DESC,start_time"),
+    "reminders",db.queryForList("SELECT x.*,c.full_name customer FROM customer_reminders x JOIN customers c ON c.id=x.customer_id ORDER BY x.id DESC"));}
+
+  @PostMapping("/stock-transfers") Object transfer(@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"MANAGER","INVENTORY");if(String.valueOf(b.get("from_branch_id")).equals(String.valueOf(b.get("to_branch_id"))))throw new ApiController.ApiException(HttpStatus.BAD_REQUEST,"Choose two different branches");db.update("INSERT INTO stock_transfers(medicine_id,from_branch_id,to_branch_id,quantity,requested_by) VALUES(?,?,?,?,?)",b.get("medicine_id"),b.get("from_branch_id"),b.get("to_branch_id"),b.get("quantity"),uid(r));return Map.of("message","Transfer requested");}
+  @PutMapping("/stock-transfers/{id}/status") Object transferStatus(@PathVariable long id,@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"MANAGER","INVENTORY");String status=String.valueOf(b.get("status"));return tx.execute(s->{List<Map<String,Object>>rows=db.queryForList("SELECT * FROM stock_transfers WHERE id=? FOR UPDATE",id);if(rows.isEmpty()||!"PENDING".equals(rows.get(0).get("status")))throw new ApiController.ApiException(HttpStatus.BAD_REQUEST,"Only pending transfers can be changed");Map<String,Object>t=rows.get(0);if("COMPLETED".equals(status)){long need=((Number)t.get("quantity")).longValue(),available=db.queryForObject("SELECT COALESCE(SUM(quantity),0) FROM stock_batches WHERE medicine_id=? AND branch_id=? AND expiry_date>=CURDATE()",Long.class,t.get("medicine_id"),t.get("from_branch_id"));if(available<need)throw new ApiController.ApiException(HttpStatus.BAD_REQUEST,"Not enough usable stock at source branch");long left=need;for(Map<String,Object>x:db.queryForList("SELECT id,quantity,purchase_price,expiry_date,batch_no FROM stock_batches WHERE medicine_id=? AND branch_id=? AND quantity>0 AND expiry_date>=CURDATE() ORDER BY expiry_date,id",t.get("medicine_id"),t.get("from_branch_id"))){if(left==0)break;long take=Math.min(left,((Number)x.get("quantity")).longValue());db.update("UPDATE stock_batches SET quantity=quantity-? WHERE id=?",take,x.get("id"));db.update("INSERT INTO stock_batches(medicine_id,branch_id,batch_no,quantity,purchase_price,expiry_date) VALUES(?,?,?,?,?,?)",t.get("medicine_id"),t.get("to_branch_id"),"TR-"+id+"-"+x.get("batch_no"),take,x.get("purchase_price"),x.get("expiry_date"));left-=take;}db.update("UPDATE stock_transfers SET status='COMPLETED',completed_at=NOW() WHERE id=?",id);}else if("CANCELLED".equals(status))db.update("UPDATE stock_transfers SET status='CANCELLED' WHERE id=?",id);else throw new ApiController.ApiException(HttpStatus.BAD_REQUEST,"Invalid status");return Map.of("message","Transfer "+status.toLowerCase());});}
+
+  @PostMapping("/supplier-quotes") Object quote(@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"MANAGER","INVENTORY","FINANCE");db.update("INSERT INTO supplier_quotes(supplier_id,medicine_id,unit_price,lead_days,notes) VALUES(?,?,?,?,?) ON DUPLICATE KEY UPDATE unit_price=VALUES(unit_price),lead_days=VALUES(lead_days),notes=VALUES(notes)",b.get("supplier_id"),b.get("medicine_id"),b.get("unit_price"),b.get("lead_days"),b.get("notes"));return Map.of("message","Supplier price saved");}
+  @DeleteMapping("/supplier-quotes/{id}") Object deleteQuote(@PathVariable long id,HttpServletRequest r){allow(r,"MANAGER","INVENTORY","FINANCE");db.update("DELETE FROM supplier_quotes WHERE id=?",id);return Map.of("message","Quote removed");}
+
+  @PostMapping("/staff-schedules") Object schedule(@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"MANAGER");db.update("INSERT INTO staff_schedules(user_id,branch_id,shift_date,start_time,end_time,note) VALUES(?,?,?,?,?,?)",b.get("user_id"),b.get("branch_id"),b.get("shift_date"),b.get("start_time"),b.get("end_time"),b.get("note"));return Map.of("message","Shift added");}
+  @DeleteMapping("/staff-schedules/{id}") Object deleteSchedule(@PathVariable long id,HttpServletRequest r){allow(r,"MANAGER");db.update("DELETE FROM staff_schedules WHERE id=?",id);return Map.of("message","Shift removed");}
+
+  @PutMapping("/complaints/{id}/status") Object complaintStatus(@PathVariable long id,@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"MANAGER","CASHIER");db.update("UPDATE complaints SET status=? WHERE id=?",b.get("status"),id);return Map.of("message","Complaint updated");}
+  @DeleteMapping("/complaints/{id}") Object deleteComplaint(@PathVariable long id,HttpServletRequest r){allow(r,"MANAGER");db.update("DELETE FROM complaints WHERE id=?",id);return Map.of("message","Complaint removed");}
+  @GetMapping("/customer/complaints") Object myComplaints(HttpServletRequest r){allow(r,"CUSTOMER");return db.queryForList("SELECT * FROM complaints WHERE customer_id=? ORDER BY id DESC",customer(r));}
+  @PostMapping("/customer/complaints") Object myComplaint(@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"CUSTOMER");db.update("INSERT INTO complaints(customer_id,subject,details) VALUES(?,?,?)",customer(r),b.get("subject"),b.get("details"));return Map.of("message","Complaint submitted");}
+  @GetMapping("/customer/reminders") Object myReminders(HttpServletRequest r){allow(r,"CUSTOMER");return db.queryForList("SELECT * FROM customer_reminders WHERE customer_id=? ORDER BY due_date,id DESC",customer(r));}
+  @PostMapping("/reminders") Object reminder(@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"MANAGER","PHARMACIST","CASHIER");db.update("INSERT INTO customer_reminders(customer_id,type,message,due_date) VALUES(?,?,?,?)",b.get("customer_id"),b.get("type"),b.get("message"),b.get("due_date"));return Map.of("message","Reminder created");}
+  @PutMapping("/reminders/{id}/status") Object reminderStatus(@PathVariable long id,@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"MANAGER","PHARMACIST","CASHIER");db.update("UPDATE customer_reminders SET status=? WHERE id=?",b.get("status"),id);return Map.of("message","Reminder updated");}
+
+  @PutMapping("/purchase-orders/{id}/cancel") Object cancelPo(@PathVariable long id,HttpServletRequest r){allow(r,"MANAGER","INVENTORY");int n=db.update("UPDATE purchase_orders SET status='CANCELLED',delivery_status='CANCELLED' WHERE id=? AND status='PENDING'",id);if(n==0)throw new ApiController.ApiException(HttpStatus.BAD_REQUEST,"Only pending orders can be cancelled");return Map.of("message","Purchase order cancelled");}
+  @PutMapping("/purchase-orders/{id}/delivery") Object delivery(@PathVariable long id,@RequestBody Map<String,Object>b,HttpServletRequest r){allow(r,"MANAGER","INVENTORY");db.update("UPDATE purchase_orders SET expected_delivery=?,delivery_status=? WHERE id=?",b.get("expected_delivery"),b.get("delivery_status"),id);return Map.of("message","Delivery details updated");}
+
+  @GetMapping("/reports/complete") Object reports(HttpServletRequest r){allow(r,"MANAGER","FINANCE");return Map.of(
+    "daily",db.queryForList("SELECT DATE(created_at) period,SUM(grand_total) revenue,COUNT(*) transactions FROM sales WHERE status='PAID' GROUP BY DATE(created_at) ORDER BY period DESC LIMIT 31"),
+    "monthly",db.queryForList("SELECT DATE_FORMAT(created_at,'%Y-%m') period,SUM(grand_total) revenue,COUNT(*) transactions FROM sales WHERE status='PAID' GROUP BY DATE_FORMAT(created_at,'%Y-%m') ORDER BY period DESC LIMIT 12"),
+    "yearly",db.queryForList("SELECT YEAR(created_at) period,SUM(grand_total) revenue,COUNT(*) transactions FROM sales WHERE status='PAID' GROUP BY YEAR(created_at) ORDER BY period DESC"),
+    "profit",db.queryForList("SELECT COALESCE(SUM(si.quantity*(si.unit_price-COALESCE(sb.cost,0))),0) gross_profit FROM sale_items si LEFT JOIN (SELECT medicine_id,AVG(purchase_price) cost FROM stock_batches GROUP BY medicine_id) sb ON sb.medicine_id=si.medicine_id JOIN sales s ON s.id=si.sale_id WHERE s.status='PAID'"),
+    "inventoryValue",db.queryForList("SELECT b.name branch,SUM(sb.quantity*sb.purchase_price) inventory_value FROM branches b LEFT JOIN stock_batches sb ON sb.branch_id=b.id GROUP BY b.id,b.name"),
+    "wastage",db.queryForList("SELECT m.name,SUM(sb.quantity) expired_units,SUM(sb.quantity*sb.purchase_price) loss FROM stock_batches sb JOIN medicines m ON m.id=sb.medicine_id WHERE sb.expiry_date<CURDATE() AND sb.quantity>0 GROUP BY m.id,m.name ORDER BY loss DESC"),
+    "movement",db.queryForList("SELECT m.name,COALESCE(SUM(si.quantity),0) units,CASE WHEN COALESCE(SUM(si.quantity),0)>=20 THEN 'FAST' ELSE 'SLOW' END movement FROM medicines m LEFT JOIN sale_items si ON si.medicine_id=m.id GROUP BY m.id,m.name ORDER BY units DESC"),
+    "supplierBalances",db.queryForList("SELECT s.name,COALESCE(po.total,0) purchases,COALESCE(p.paid,0) paid,COALESCE(po.total,0)-COALESCE(p.paid,0) outstanding FROM suppliers s LEFT JOIN (SELECT supplier_id,SUM(total_amount) total FROM purchase_orders WHERE status='RECEIVED' GROUP BY supplier_id)po ON po.supplier_id=s.id LEFT JOIN (SELECT supplier_id,SUM(amount) paid FROM supplier_payments GROUP BY supplier_id)p ON p.supplier_id=s.id ORDER BY outstanding DESC"));}
+}

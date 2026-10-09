@@ -1,0 +1,1186 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Medicines - Pharmacy Management System</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     NAVBAR
+     ===================================================== -->
+
+<!-- =====================================================
+     COMMON NAVBAR
+     ===================================================== -->
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+
+<!-- =====================================================
+     MAIN CONTENT
+     ===================================================== -->
+
+<main class="page-container">
+
+
+    <section class="page-header">
+
+        <div>
+
+            <h1>
+                Medicines
+            </h1>
+
+            <p>
+                Manage your pharmacy medicines.
+            </p>
+
+        </div>
+
+
+        <!-- ADMIN + INVENTORY OFFICER ONLY -->
+
+        <button class="primary-button"
+                onclick="openAddModal()"
+                th:if="${session.role == 'ADMIN'
+                         or session.role == 'INVENTORY_OFFICER'}">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Add Medicine
+
+        </button>
+
+    </section>
+
+
+    <!-- =====================================================
+         MESSAGE
+         ===================================================== -->
+
+    <div id="message"
+         class="message">
+    </div>
+
+
+    <!-- =====================================================
+         MEDICINE LIST
+         ===================================================== -->
+
+    <section class="content-card">
+
+        <div class="card-header">
+
+            <h2>
+                Medicine List
+            </h2>
+
+            <span class="count-badge"
+                  id="medicineCount">
+
+                0 Medicines
+
+            </span>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th>
+
+                    <th>Name</th>
+
+                    <th>Category</th>
+
+                    <th>Price</th>
+
+                    <th>Quantity</th>
+
+                    <th>Action</th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody id="medicineTableBody">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- =====================================================
+     ADD / EDIT MODAL
+     ===================================================== -->
+
+<div id="medicineModal"
+     class="modal-overlay">
+
+    <div class="modal">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2 id="modalTitle">
+                    Add Medicine
+                </h2>
+
+                <p>
+                    Enter medicine details below.
+                </p>
+
+            </div>
+
+
+            <button class="modal-close"
+                    onclick="closeModal()">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+        <form id="medicineForm"
+              onsubmit="saveMedicine(event)">
+
+
+            <input type="hidden"
+                   id="medicineId">
+
+
+            <!-- NAME -->
+
+            <div class="form-group">
+
+                <label for="name">
+                    Medicine Name
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-pills"></i>
+
+                    <input type="text"
+                           id="name"
+                           placeholder="Enter medicine name"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <!-- CATEGORY -->
+
+            <div class="form-group">
+
+                <label for="category">
+                    Category
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-layer-group"></i>
+
+                    <input type="text"
+                           id="category"
+                           placeholder="Enter category"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <!-- PRICE + QUANTITY -->
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="price">
+                        Price
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <span class="input-prefix">
+                            Rs.
+                        </span>
+
+                        <input type="number"
+                               id="price"
+                               placeholder="0.00"
+                               min="0"
+                               step="0.01"
+                               required>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="quantity">
+                        Quantity
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-solid fa-boxes-stacked"></i>
+
+                        <input type="number"
+                               id="quantity"
+                               placeholder="Enter quantity"
+                               min="0"
+                               required>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- BUTTONS -->
+
+            <div class="modal-actions">
+
+                <button type="button"
+                        class="secondary-button"
+                        onclick="closeModal()">
+
+                    Cancel
+
+                </button>
+
+
+                <button type="submit"
+                        class="primary-button">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    <span id="saveButtonText">
+                        Save Medicine
+                    </span>
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<!-- =====================================================
+     JAVASCRIPT
+     ===================================================== -->
+
+<script>
+
+    let medicines = [];
+
+
+    // Current logged-in role from session
+
+    const currentRole =
+        '[[${session.role}]]';
+
+
+    // =====================================================
+    // ROLE PERMISSIONS
+    // =====================================================
+
+    const canManageMedicines =
+        currentRole === "ADMIN" ||
+        currentRole === "INVENTORY_OFFICER";
+
+
+    // =====================================================
+    // LOAD MEDICINES
+    // =====================================================
+
+    async function loadMedicines() {
+
+        try {
+
+            const response =
+                await fetch("/api/medicines");
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to load medicines"
+                );
+
+            }
+
+
+            medicines =
+                await response.json();
+
+
+            displayMedicines();
+
+        } catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                "Unable to load medicines.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // =====================================================
+    // DISPLAY MEDICINES
+    // =====================================================
+
+    function displayMedicines() {
+
+        const tableBody =
+            document.getElementById(
+                "medicineTableBody"
+            );
+
+
+        const countBadge =
+            document.getElementById(
+                "medicineCount"
+            );
+
+
+        tableBody.innerHTML = "";
+
+
+        countBadge.textContent =
+            `${medicines.length} ${
+                medicines.length === 1
+                    ? "Medicine"
+                    : "Medicines"
+            }`;
+
+
+        if (medicines.length === 0) {
+
+            tableBody.innerHTML = `
+
+                <tr>
+
+                    <td colspan="6"
+                        class="empty-state">
+
+                        <i class="fa-solid fa-pills"></i>
+
+                        <div>
+                            No medicines found.
+                        </div>
+
+                        ${
+                canManageMedicines
+                    ? `
+                                    <small>
+                                        Click "Add Medicine"
+                                        to add one.
+                                    </small>
+                                  `
+                    : ""
+            }
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
+        medicines.forEach(medicine => {
+
+            const row =
+                document.createElement("tr");
+
+
+            const actionButtons =
+                canManageMedicines
+                    ? `
+
+                        <div class="action-buttons">
+
+                            <button
+                                class="edit-action"
+                                onclick="openEditModal(${medicine.id})">
+
+                                <i class="fa-solid fa-pen"></i>
+
+                                Edit
+
+                            </button>
+
+
+                            <button
+                                class="delete-action"
+                                onclick="deleteMedicine(${medicine.id})">
+
+                                <i class="fa-solid fa-trash"></i>
+
+                                Delete
+
+                            </button>
+
+                        </div>
+
+                      `
+                    : `
+
+                        <span class="category-badge">
+
+                            View Only
+
+                        </span>
+
+                      `;
+
+
+            row.innerHTML = `
+
+                <td>
+                    ${medicine.id}
+                </td>
+
+
+                <td>
+
+                    <div class="medicine-name">
+
+                        <div class="medicine-icon">
+
+                            <i class="fa-solid fa-pills"></i>
+
+                        </div>
+
+                        <strong>
+                            ${escapeHtml(medicine.name)}
+                        </strong>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <span class="category-badge">
+
+                        ${escapeHtml(medicine.category)}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <strong>
+                        Rs. ${Number(medicine.price).toFixed(2)}
+                    </strong>
+
+                </td>
+
+
+                <td>
+
+                    <span class="${
+                medicine.quantity <= 0
+                    ? "quantity-danger"
+                    : medicine.quantity <= 10
+                        ? "quantity-warning"
+                        : "quantity-normal"
+            }">
+
+                        ${medicine.quantity}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    ${actionButtons}
+
+                </td>
+
+            `;
+
+
+            tableBody.appendChild(row);
+
+        });
+
+    }
+
+
+    // =====================================================
+    // OPEN ADD MODAL
+    // =====================================================
+
+    function openAddModal() {
+
+        if (!canManageMedicines) {
+
+            showMessage(
+                "You do not have permission to add medicines.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent = "Add Medicine";
+
+
+        document.getElementById(
+            "saveButtonText"
+        ).textContent = "Save Medicine";
+
+
+        document.getElementById(
+            "medicineForm"
+        ).reset();
+
+
+        document.getElementById(
+            "medicineId"
+        ).value = "";
+
+
+        document.getElementById(
+            "medicineModal"
+        ).classList.add("show");
+
+
+        setTimeout(() => {
+
+            document.getElementById(
+                "name"
+            ).focus();
+
+        }, 100);
+
+    }
+
+
+    // =====================================================
+    // OPEN EDIT MODAL
+    // =====================================================
+
+    function openEditModal(id) {
+
+        if (!canManageMedicines) {
+
+            showMessage(
+                "You do not have permission to edit medicines.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const medicine =
+            medicines.find(
+                item => item.id === id
+            );
+
+
+        if (!medicine) {
+
+            showMessage(
+                "Medicine not found.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent = "Edit Medicine";
+
+
+        document.getElementById(
+            "saveButtonText"
+        ).textContent = "Update Medicine";
+
+
+        document.getElementById(
+            "medicineId"
+        ).value = medicine.id;
+
+
+        document.getElementById(
+            "name"
+        ).value = medicine.name;
+
+
+        document.getElementById(
+            "category"
+        ).value = medicine.category;
+
+
+        document.getElementById(
+            "price"
+        ).value = medicine.price;
+
+
+        document.getElementById(
+            "quantity"
+        ).value = medicine.quantity;
+
+
+        document.getElementById(
+            "medicineModal"
+        ).classList.add("show");
+
+
+        setTimeout(() => {
+
+            document.getElementById(
+                "name"
+            ).focus();
+
+        }, 100);
+
+    }
+
+
+    // =====================================================
+    // CLOSE MODAL
+    // =====================================================
+
+    function closeModal() {
+
+        document.getElementById(
+            "medicineModal"
+        ).classList.remove("show");
+
+
+        document.getElementById(
+            "medicineForm"
+        ).reset();
+
+
+        document.getElementById(
+            "medicineId"
+        ).value = "";
+
+    }
+
+
+    // =====================================================
+    // SAVE MEDICINE
+    // =====================================================
+
+    async function saveMedicine(event) {
+
+        event.preventDefault();
+
+
+        if (!canManageMedicines) {
+
+            showMessage(
+                "You do not have permission to manage medicines.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const id =
+            document.getElementById(
+                "medicineId"
+            ).value;
+
+
+        const name =
+            document.getElementById(
+                "name"
+            ).value.trim();
+
+
+        const category =
+            document.getElementById(
+                "category"
+            ).value.trim();
+
+
+        const price =
+            Number(
+                document.getElementById(
+                    "price"
+                ).value
+            );
+
+
+        const quantity =
+            Number(
+                document.getElementById(
+                    "quantity"
+                ).value
+            );
+
+
+        // =================================================
+        // VALIDATION
+        // =================================================
+
+        if (!name) {
+
+            showMessage(
+                "Medicine name is required.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!category) {
+
+            showMessage(
+                "Category is required.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            price < 0 ||
+            Number.isNaN(price)
+        ) {
+
+            showMessage(
+                "Please enter a valid price.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            quantity < 0 ||
+            Number.isNaN(quantity)
+        ) {
+
+            showMessage(
+                "Please enter a valid quantity.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const medicine = {
+
+            name: name,
+
+            category: category,
+
+            price: price,
+
+            quantity: quantity
+
+        };
+
+
+        try {
+
+            let response;
+
+
+            // =================================================
+            // UPDATE
+            // =================================================
+
+            if (id) {
+
+                response =
+                    await fetch(
+                        `/api/medicines/${id}`,
+                        {
+
+                            method: "PUT",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    medicine
+                                )
+
+                        }
+                    );
+
+            }
+
+
+                // =================================================
+                // CREATE
+            // =================================================
+
+            else {
+
+                response =
+                    await fetch(
+                        "/api/medicines",
+                        {
+
+                            method: "POST",
+
+                            headers: {
+
+                                "Content-Type":
+                                    "application/json"
+
+                            },
+
+                            body:
+                                JSON.stringify(
+                                    medicine
+                                )
+
+                        }
+                    );
+
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to save medicine"
+                );
+
+            }
+
+
+            closeModal();
+
+
+            showMessage(
+
+                id
+                    ? "Medicine updated successfully."
+                    : "Medicine added successfully.",
+
+                "success"
+
+            );
+
+
+            await loadMedicines();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            showMessage(
+                "Unable to save medicine.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // =====================================================
+    // DELETE MEDICINE
+    // =====================================================
+
+    async function deleteMedicine(id) {
+
+        if (!canManageMedicines) {
+
+            showMessage(
+                "You do not have permission to delete medicines.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const medicine =
+            medicines.find(
+                item => item.id === id
+            );
+
+
+        if (!medicine) {
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+                `Are you sure you want to delete "${medicine.name}"?`
+            );
+
+
+        if (!confirmed) {
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/medicines/${id}`,
+                    {
+
+                        method: "DELETE"
+
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to delete medicine"
+                );
+
+            }
+
+
+            showMessage(
+                "Medicine deleted successfully.",
+                "success"
+            );
+
+
+            await loadMedicines();
+
+
+        } catch (error) {
+
+            console.error(error);
+
+
+            showMessage(
+                "Unable to delete medicine.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    // =====================================================
+    // MESSAGE
+    // =====================================================
+
+    function showMessage(text, type) {
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+
+        message.textContent = text;
+
+
+        message.className =
+            `message ${type}`;
+
+
+        setTimeout(() => {
+
+            message.textContent = "";
+
+            message.className =
+                "message";
+
+        }, 3000);
+
+    }
+
+
+    // =====================================================
+    // ESCAPE HTML
+    // =====================================================
+
+    function escapeHtml(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+
+        }
+
+
+        return String(value)
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    // =====================================================
+    // CLOSE MODAL OUTSIDE CLICK
+    // =====================================================
+
+    document.getElementById(
+        "medicineModal"
+    ).addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target === this
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+
+    // =====================================================
+    // ESC KEY
+    // =====================================================
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+
+    // =====================================================
+    // START
+    // =====================================================
+
+    loadMedicines();
+
+</script>
+
+</body>
+
+</html>

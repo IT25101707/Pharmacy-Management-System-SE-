@@ -1,0 +1,1426 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Sales - Pharmacy Management System</title>
+
+    <link rel="stylesheet" href="/style.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+        .sales-container {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 55px 25px;
+        }
+
+        .sales-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 55px;
+        }
+
+        .sales-header h1 {
+            margin: 0 0 10px;
+            font-size: 42px;
+            color: #111827;
+        }
+
+        .sales-header p {
+            margin: 0;
+            color: #64748b;
+            font-size: 18px;
+        }
+
+        .add-sale-button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 6px 15px rgba(37, 99, 235, 0.18);
+        }
+
+        .add-sale-button:hover {
+            background: #1d4ed8;
+        }
+
+        .sales-list-card {
+            background: white;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.07);
+            border: 1px solid #e8edf4;
+        }
+
+        .sales-list-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+        .sales-list-header h2 {
+            margin: 0;
+            color: #173f7a;
+            font-size: 24px;
+        }
+
+        .sales-count {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 9px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        .sales-table-wrapper {
+            overflow-x: auto;
+        }
+
+        .sales-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            min-width: 850px;
+        }
+
+        .sales-table thead th {
+            background: #2563eb;
+            color: white;
+            padding: 17px 16px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        .sales-table thead th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        .sales-table thead th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        .sales-table tbody td {
+            padding: 18px 16px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #334155;
+            font-size: 15px;
+        }
+
+        .sales-table tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        .sale-id {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .medicine-name {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            color: #1e3a5f;
+        }
+
+        .medicine-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 11px;
+            background: #eff6ff;
+            color: #2563eb;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .quantity-value {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .price-value {
+            color: #173f7a;
+            font-weight: 700;
+        }
+
+        .date-value {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-button,
+        .delete-button {
+            border: none;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .edit-button {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .delete-button {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .edit-button:hover {
+            background: #ffedd5;
+        }
+
+        .delete-button:hover {
+            background: #fee2e2;
+        }
+
+        .view-only {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .empty-sales {
+            text-align: center;
+            padding: 55px 20px;
+            color: #64748b;
+        }
+
+        .empty-sales i {
+            font-size: 45px;
+            margin-bottom: 15px;
+            color: #94a3b8;
+        }
+
+        .empty-sales h3 {
+            margin: 0 0 7px;
+            color: #334155;
+        }
+
+        /* MODAL */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.48);
+            backdrop-filter: blur(3px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .sale-modal {
+            width: 100%;
+            max-width: 650px;
+            background: white;
+            border-radius: 20px;
+            padding: 32px;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 25px;
+        }
+
+        .modal-header h2 {
+            margin: 0 0 7px;
+            color: #173f7a;
+            font-size: 28px;
+        }
+
+        .modal-header p {
+            margin: 0;
+            color: #64748b;
+        }
+
+        .close-modal {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .sale-form {
+            display: grid;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+        .form-group label {
+            color: #334155;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .sale-form input {
+            width: 100%;
+            box-sizing: border-box;
+            border: 1px solid #d6dde8;
+            border-radius: 10px;
+            padding: 14px 15px 14px 43px;
+            font-size: 15px;
+            color: #334155;
+            outline: none;
+            background: white;
+        }
+
+        .sale-form input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 10px;
+            padding-top: 22px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .cancel-button {
+            border: none;
+            background: #f1f5f9;
+            color: #475569;
+            padding: 13px 20px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .save-sale-button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 13px 22px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .save-sale-button:hover {
+            background: #1d4ed8;
+        }
+
+        .sale-message {
+            display: none;
+            padding: 13px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .sale-message.error {
+            display: block;
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .sale-message.success {
+            display: block;
+            background: #ecfdf5;
+            color: #059669;
+        }
+
+        @media (max-width: 800px) {
+
+            .sales-header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .sales-header h1 {
+                font-size: 34px;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .sale-modal {
+                padding: 24px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<!-- =====================================================
+     COMMON NAVBAR
+     ===================================================== -->
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+<main class="sales-container">
+
+    <section class="sales-header">
+
+        <div>
+            <h1>Sales</h1>
+            <p>Manage your pharmacy sales.</p>
+        </div>
+
+        <!-- CRUD ROLES ONLY -->
+        <button class="add-sale-button"
+                onclick="openAddSaleModal()"
+                th:if="${session.role == 'ADMIN'
+                         or session.role == 'PHARMACIST'
+                         or session.role == 'SALES_OFFICER'}">
+
+            <i class="fa-solid fa-plus"></i>
+            Add Sale
+
+        </button>
+
+    </section>
+
+
+    <section class="sales-list-card">
+
+        <div class="sales-list-header">
+
+            <h2>
+                <i class="fa-solid fa-cart-shopping"></i>
+                Sales List
+            </h2>
+
+            <span class="sales-count"
+                  id="salesCount">
+                0 Sales
+            </span>
+
+        </div>
+
+
+        <div class="sales-table-wrapper">
+
+            <table class="sales-table">
+
+                <thead>
+
+                <tr>
+                    <th>ID</th>
+                    <th>Medicine</th>
+                    <th>Quantity</th>
+                    <th>Total Price</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+
+                </thead>
+
+                <tbody id="salesTableBody"></tbody>
+
+            </table>
+
+
+            <div class="empty-sales"
+                 id="emptySales"
+                 style="display:none;">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+                <h3>No Sales Found</h3>
+
+                <p>
+                    No sales records are available.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- ADD / EDIT SALE MODAL -->
+
+<div class="modal-overlay"
+     id="saleModal">
+
+    <div class="sale-modal">
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2 id="modalTitle">
+                    Add Sale
+                </h2>
+
+                <p>
+                    Enter sale details below.
+                </p>
+
+            </div>
+
+            <button class="close-modal"
+                    onclick="closeSaleModal()">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+        <form class="sale-form"
+              id="saleForm"
+              onsubmit="saveSale(event)">
+
+            <input type="hidden"
+                   id="saleId">
+
+
+            <div class="form-group">
+
+                <label for="medicineName">
+                    Medicine Name
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-pills"></i>
+
+                    <input type="text"
+                           id="medicineName"
+                           placeholder="Enter medicine name"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-row">
+
+                <div class="form-group">
+
+                    <label for="quantity">
+                        Quantity
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-solid fa-boxes-stacked"></i>
+
+                        <input type="number"
+                               id="quantity"
+                               min="1"
+                               placeholder="Enter quantity"
+                               required>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="totalPrice">
+                        Total Price
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-solid fa-money-bill-wave"></i>
+
+                        <input type="number"
+                               id="totalPrice"
+                               min="0.01"
+                               step="0.01"
+                               placeholder="Rs. 0.00"
+                               required>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <div class="form-group">
+
+                <label for="saleDate">
+                    Sale Date
+                </label>
+
+                <div class="input-wrapper">
+
+                    <i class="fa-solid fa-calendar"></i>
+
+                    <input type="date"
+                           id="saleDate"
+                           required>
+
+                </div>
+
+            </div>
+
+
+            <div id="saleMessage"
+                 class="sale-message">
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="cancel-button"
+                        onclick="closeSaleModal()">
+
+                    Cancel
+
+                </button>
+
+                <button type="submit"
+                        class="save-sale-button"
+                        id="saveSaleButton">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+                    Save Sale
+
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* =====================================================
+       CURRENT ROLE
+       ===================================================== */
+
+    const currentRole =
+        '[[${session.role}]]';
+
+
+    const canManageSales =
+        currentRole === "ADMIN" ||
+        currentRole === "PHARMACIST" ||
+        currentRole === "SALES_OFFICER";
+
+
+    let editingSaleId = null;
+
+
+    /* =====================================================
+       LOAD SALES
+       ===================================================== */
+
+    async function loadSales() {
+
+        try {
+
+            const response =
+                await fetch("/api/sales");
+
+
+            if (!response.ok) {
+                throw new Error("Failed to load sales");
+            }
+
+
+            const sales =
+                await response.json();
+
+
+            displaySales(sales);
+
+        }
+        catch (error) {
+
+            console.error(error);
+
+            const tableBody =
+                document.getElementById(
+                    "salesTableBody"
+                );
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td colspan="6"
+                        style="text-align:center;padding:40px;color:#dc2626;">
+                        Unable to load sales.
+                    </td>
+                </tr>
+            `;
+
+        }
+
+    }
+
+
+    /* =====================================================
+       DISPLAY SALES
+       ===================================================== */
+
+    function displaySales(sales) {
+
+        const tableBody =
+            document.getElementById(
+                "salesTableBody"
+            );
+
+
+        const emptySales =
+            document.getElementById(
+                "emptySales"
+            );
+
+
+        const salesCount =
+            document.getElementById(
+                "salesCount"
+            );
+
+
+        tableBody.innerHTML = "";
+
+
+        salesCount.textContent =
+            `${sales.length} ${
+                sales.length === 1
+                    ? "Sale"
+                    : "Sales"
+            }`;
+
+
+        if (sales.length === 0) {
+
+            emptySales.style.display =
+                "block";
+
+            return;
+
+        }
+
+
+        emptySales.style.display =
+            "none";
+
+
+        sales.forEach(sale => {
+
+            const row =
+                document.createElement("tr");
+
+
+            const actionHtml =
+                canManageSales
+
+                    ? `
+                        <div class="action-buttons">
+
+                            <button
+                                class="edit-button"
+                                onclick='editSale(${JSON.stringify(sale)})'>
+
+                                <i class="fa-solid fa-pen"></i>
+                                Edit
+
+                            </button>
+
+
+                            <button
+                                class="delete-button"
+                                onclick="deleteSale(${sale.id})">
+
+                                <i class="fa-solid fa-trash"></i>
+                                Delete
+
+                            </button>
+
+                        </div>
+                      `
+
+                    : `
+                        <span class="view-only">
+
+                            <i class="fa-solid fa-eye"></i>
+                            View Only
+
+                        </span>
+                      `;
+
+
+            row.innerHTML = `
+
+                <td class="sale-id">
+                    ${sale.id}
+                </td>
+
+
+                <td>
+
+                    <span class="medicine-name">
+
+                        <span class="medicine-icon">
+                            <i class="fa-solid fa-pills"></i>
+                        </span>
+
+                        ${escapeHtml(
+                sale.medicineName
+            )}
+
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="quantity-value">
+                        ${sale.quantity}
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="price-value">
+                        Rs.
+                        ${Number(
+                sale.totalPrice
+            ).toFixed(2)}
+                    </span>
+
+                </td>
+
+
+                <td>
+
+                    <span class="date-value">
+                        ${escapeHtml(
+                sale.date
+            )}
+                    </span>
+
+                </td>
+
+
+                <td>
+                    ${actionHtml}
+                </td>
+
+            `;
+
+
+            tableBody.appendChild(row);
+
+        });
+
+    }
+
+
+    /* =====================================================
+       OPEN ADD MODAL
+       ===================================================== */
+
+    function openAddSaleModal() {
+
+        if (!canManageSales) {
+
+            showMessage(
+                "You do not have permission to add sales.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        editingSaleId = null;
+
+
+        document
+            .getElementById("saleForm")
+            .reset();
+
+
+        document
+            .getElementById("saleId")
+            .value = "";
+
+
+        document
+            .getElementById("modalTitle")
+            .textContent = "Add Sale";
+
+
+        document
+            .getElementById("saveSaleButton")
+            .innerHTML =
+            '<i class="fa-solid fa-floppy-disk"></i> Save Sale';
+
+
+        clearMessage();
+
+
+        document
+            .getElementById("saleModal")
+            .classList.add("show");
+
+    }
+
+
+    /* =====================================================
+       EDIT SALE
+       ===================================================== */
+
+    function editSale(sale) {
+
+        if (!canManageSales) {
+
+            showMessage(
+                "You do not have permission to edit sales.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        editingSaleId =
+            sale.id;
+
+
+        document
+            .getElementById("saleId")
+            .value =
+            sale.id;
+
+
+        document
+            .getElementById("medicineName")
+            .value =
+            sale.medicineName || "";
+
+
+        document
+            .getElementById("quantity")
+            .value =
+            sale.quantity ?? "";
+
+
+        document
+            .getElementById("totalPrice")
+            .value =
+            sale.totalPrice ?? "";
+
+
+        document
+            .getElementById("saleDate")
+            .value =
+            sale.date || "";
+
+
+        document
+            .getElementById("modalTitle")
+            .textContent =
+            "Edit Sale";
+
+
+        document
+            .getElementById("saveSaleButton")
+            .innerHTML =
+            '<i class="fa-solid fa-floppy-disk"></i> Update Sale';
+
+
+        clearMessage();
+
+
+        document
+            .getElementById("saleModal")
+            .classList.add("show");
+
+    }
+
+
+    /* =====================================================
+       SAVE / UPDATE
+       ===================================================== */
+
+    async function saveSale(event) {
+
+        event.preventDefault();
+
+
+        if (!canManageSales) {
+
+            showMessage(
+                "You do not have permission to manage sales.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        clearMessage();
+
+
+        const sale = {
+
+            medicineName:
+                document
+                    .getElementById("medicineName")
+                    .value
+                    .trim(),
+
+            quantity:
+                Number(
+                    document
+                        .getElementById("quantity")
+                        .value
+                ),
+
+            totalPrice:
+                Number(
+                    document
+                        .getElementById("totalPrice")
+                        .value
+                ),
+
+            date:
+            document
+                .getElementById("saleDate")
+                .value
+
+        };
+
+
+        if (!sale.medicineName) {
+
+            showMessage(
+                "Medicine name is required.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (sale.quantity <= 0) {
+
+            showMessage(
+                "Quantity must be greater than 0.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (sale.totalPrice <= 0) {
+
+            showMessage(
+                "Total price must be greater than 0.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (!sale.date) {
+
+            showMessage(
+                "Sale date is required.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const isEditing =
+            editingSaleId !== null;
+
+
+        const url =
+            isEditing
+                ? `/api/sales/${editingSaleId}`
+                : "/api/sales";
+
+
+        const method =
+            isEditing
+                ? "PUT"
+                : "POST";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    url,
+                    {
+                        method: method,
+
+                        headers: {
+                            "Content-Type":
+                                "application/json"
+                        },
+
+                        body:
+                            JSON.stringify(sale)
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            let data = {};
+
+            try {
+                data = text
+                    ? JSON.parse(text)
+                    : {};
+            }
+            catch (e) {
+                data = {};
+            }
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    data.message ||
+                    data.error ||
+                    text ||
+                    "Unable to save sale"
+                );
+
+            }
+
+
+            closeSaleModal();
+
+            await loadSales();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            showMessage(
+                error.message ||
+                "Something went wrong.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       DELETE SALE
+       ===================================================== */
+
+    async function deleteSale(id) {
+
+        if (!canManageSales) {
+
+            showMessage(
+                "You do not have permission to delete sales.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+                "Are you sure you want to delete this sale?"
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/sales/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            const text =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    text ||
+                    "Failed to delete sale"
+                );
+
+            }
+
+
+            await loadSales();
+
+        }
+
+        catch (error) {
+
+            console.error(error);
+
+            alert(
+                error.message
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       CLOSE MODAL
+       ===================================================== */
+
+    function closeSaleModal() {
+
+        document
+            .getElementById("saleModal")
+            .classList.remove("show");
+
+
+        editingSaleId = null;
+
+
+        clearMessage();
+
+    }
+
+
+    /* =====================================================
+       MESSAGE
+       ===================================================== */
+
+    function showMessage(
+        message,
+        type
+    ) {
+
+        const element =
+            document.getElementById(
+                "saleMessage"
+            );
+
+
+        element.textContent =
+            message;
+
+
+        element.className =
+            `sale-message ${type}`;
+
+    }
+
+
+    function clearMessage() {
+
+        const element =
+            document.getElementById(
+                "saleMessage"
+            );
+
+
+        element.textContent =
+            "";
+
+
+        element.className =
+            "sale-message";
+
+    }
+
+
+    /* =====================================================
+       HTML ESCAPE
+       ===================================================== */
+
+    function escapeHtml(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+            return "";
+        }
+
+
+        return String(value)
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    /* =====================================================
+       CLOSE WHEN CLICK OUTSIDE
+       ===================================================== */
+
+    document
+        .getElementById("saleModal")
+        .addEventListener(
+            "click",
+            function(event) {
+
+                if (
+                    event.target === this
+                ) {
+
+                    closeSaleModal();
+
+                }
+
+            }
+        );
+
+
+    /* =====================================================
+       ESC KEY
+       ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeSaleModal();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       INITIAL LOAD
+       ===================================================== */
+
+    loadSales();
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Invoices - Pharmacy Management System</title>
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f6f8fc;
+            color: #172554;
+        }
+
+        /* ================= NAVBAR ================= */
+
+        .top-navbar {
+            min-height: 76px;
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            display: flex;
+            align-items: center;
+            padding: 0 32px;
+            gap: 20px;
+        }
+
+        .navbar-title {
+            font-size: 25px;
+            font-weight: 700;
+            color: #0f172a;
+            white-space: nowrap;
+            margin-right: auto;
+        }
+
+        .navbar-title i {
+            color: #2563eb;
+            margin-right: 8px;
+        }
+
+        .navbar-menu {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+
+        .navbar-menu a {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            text-decoration: none;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 600;
+            padding: 11px 12px;
+            border-radius: 10px;
+            transition: 0.2s;
+        }
+
+        .navbar-menu a:hover {
+            background: #f1f5f9;
+            color: #2563eb;
+        }
+
+        .navbar-menu a.active {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+        .logout-button {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            background: #2563eb;
+            color: white;
+            text-decoration: none;
+            padding: 12px 19px;
+            border-radius: 10px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .logout-button:hover {
+            background: #1d4ed8;
+        }
+
+        /* ================= MAIN ================= */
+
+        .page-container {
+            max-width: 1240px;
+            margin: auto;
+            padding: 55px 25px 70px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 55px;
+        }
+
+        .page-header h1 {
+            font-size: 40px;
+            color: #0f172a;
+            margin-bottom: 12px;
+        }
+
+        .page-header p {
+            font-size: 18px;
+            color: #64748b;
+        }
+
+        /* ================= ADD BUTTON ================= */
+
+        .add-button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 14px 22px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .add-button:hover {
+            background: #1d4ed8;
+        }
+
+        /* ================= TABLE ================= */
+
+        .table-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 25px;
+            box-shadow: 0 8px 30px rgba(15, 23, 42, 0.07);
+            border: 1px solid #eef2f7;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #163f7a;
+            font-size: 23px;
+            font-weight: 700;
+        }
+
+        .card-title i {
+            color: #2563eb;
+        }
+
+        .count-badge {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 9px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        thead tr {
+            background: #2563eb;
+        }
+
+        th {
+            color: white;
+            padding: 16px 18px;
+            text-align: left;
+            font-size: 15px;
+            font-weight: 700;
+        }
+
+        th:first-child {
+            border-radius: 10px 0 0 10px;
+        }
+
+        th:last-child {
+            border-radius: 0 10px 10px 0;
+        }
+
+        td {
+            padding: 18px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #334155;
+            font-size: 15px;
+        }
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        .invoice-id {
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        .medicine-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .medicine-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: #eff6ff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #2563eb;
+            flex-shrink: 0;
+        }
+
+        .medicine-name {
+            color: #1e3a8a;
+            font-weight: 600;
+        }
+
+        .quantity {
+            color: #059669;
+            font-weight: 700;
+        }
+
+        .amount {
+            color: #1e3a8a;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .date-value {
+            color: #334155;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        /* ================= ACTIONS ================= */
+
+        .actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-button,
+        .delete-button {
+            border: none;
+            padding: 10px 14px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+        }
+
+        .edit-button {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+        .delete-button {
+            background: #fff1f2;
+            color: #dc2626;
+        }
+
+        .edit-button:hover {
+            background: #ffedd5;
+        }
+
+        .delete-button:hover {
+            background: #ffe4e6;
+        }
+
+        .view-only {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .message-row {
+            text-align: center;
+            padding: 45px 20px;
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        /* ================= MODAL ================= */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            z-index: 1000;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            width: 100%;
+            max-width: 680px;
+            background: white;
+            border-radius: 20px;
+            padding: 34px;
+            box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+
+        .modal-header h2 {
+            font-size: 27px;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+        }
+
+        .modal-header p {
+            color: #64748b;
+            font-size: 15px;
+        }
+
+        .close-button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            border-radius: 10px;
+            background: #f1f5f9;
+            color: #64748b;
+            font-size: 18px;
+            cursor: pointer;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group.full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #334155;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-wrapper i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 13px 14px 13px 42px;
+            border: 1px solid #d7dee8;
+            border-radius: 10px;
+            font-size: 15px;
+            color: #1e293b;
+            outline: none;
+        }
+
+        .form-group input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 30px;
+            padding-top: 22px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+        .cancel-button,
+        .save-button {
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .cancel-button {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .save-button {
+            background: #2563eb;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .save-button:hover {
+            background: #1d4ed8;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
+        @media (max-width: 900px) {
+
+            .top-navbar {
+                height: auto;
+                padding: 18px;
+                flex-wrap: wrap;
+            }
+
+            .navbar-title {
+                width: 100%;
+                text-align: center;
+            }
+
+            .navbar-menu {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .logout-button {
+                margin: auto;
+            }
+        }
+
+        @media (max-width: 650px) {
+
+            .page-container {
+                padding: 35px 15px;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 20px;
+            }
+
+            .add-button {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-group.full {
+                grid-column: auto;
+            }
+
+            .modal {
+                padding: 25px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .cancel-button,
+            .save-button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     COMMON NAVBAR
+     ===================================================== -->
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+<main class="page-container">
+
+
+    <section class="page-header">
+
+        <div>
+
+            <h1>
+                Invoices
+            </h1>
+
+            <p>
+                Manage invoices generated from pharmacy sales.
+            </p>
+
+        </div>
+
+
+        <!-- ADMIN + FINANCE_OFFICER ONLY -->
+        <button class="add-button"
+                onclick="openAddModal()"
+                th:if="${session.role == 'ADMIN'
+                         or session.role == 'FINANCE_OFFICER'}">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Add Invoice
+
+        </button>
+
+    </section>
+
+
+    <section class="table-card">
+
+        <div class="card-header">
+
+            <h2 class="card-title">
+
+                <i class="fa-solid fa-file-invoice"></i>
+
+                Invoice List
+
+            </h2>
+
+
+            <span class="count-badge"
+                  id="invoiceCount">
+
+                0 Invoices
+
+            </span>
+
+        </div>
+
+
+        <div class="table-wrapper">
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>ID</th>
+                    <th>Medicine</th>
+                    <th>Quantity</th>
+                    <th>Total Amount</th>
+                    <th>Date</th>
+                    <th>Action</th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody id="invoiceTableBody">
+
+                </tbody>
+
+            </table>
+
+
+            <div id="message"
+                 class="message-row">
+
+                Loading invoices...
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<!-- ================= ADD / EDIT MODAL ================= -->
+
+<div id="invoiceModal"
+     class="modal-overlay">
+
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+            <div>
+
+                <h2 id="modalTitle">
+                    Add Invoice
+                </h2>
+
+                <p>
+                    Enter invoice details below.
+                </p>
+
+            </div>
+
+
+            <button class="close-button"
+                    onclick="closeModal()">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+        </div>
+
+
+        <form id="invoiceForm">
+
+            <div class="form-grid">
+
+
+                <div class="form-group">
+
+                    <label for="medicineName">
+                        Medicine Name
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-solid fa-pills"></i>
+
+                        <input
+                                type="text"
+                                id="medicineName"
+                                placeholder="Enter medicine name"
+                                required>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="quantity">
+                        Quantity
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-solid fa-boxes-stacked"></i>
+
+                        <input
+                                type="number"
+                                id="quantity"
+                                min="1"
+                                placeholder="Enter quantity"
+                                required>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="totalAmount">
+                        Total Amount
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-solid fa-money-bill-wave"></i>
+
+                        <input
+                                type="number"
+                                id="totalAmount"
+                                min="0.01"
+                                step="0.01"
+                                placeholder="0.00"
+                                required>
+
+                    </div>
+
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="date">
+                        Date
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <i class="fa-solid fa-calendar"></i>
+
+                        <input
+                                type="date"
+                                id="date"
+                                required>
+
+                    </div>
+
+                </div>
+
+
+            </div>
+
+
+            <div class="modal-footer">
+
+                <button type="button"
+                        class="cancel-button"
+                        onclick="closeModal()">
+
+                    Cancel
+
+                </button>
+
+
+                <button type="submit"
+                        class="save-button">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    <span id="saveButtonText">
+                        Save Invoice
+                    </span>
+
+                </button>
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+<script>
+
+    /* =====================================================
+       CURRENT ROLE
+       ===================================================== */
+
+    const currentRole =
+        '[[${session.role}]]';
+
+
+    /*
+     * Final stakeholder structure:
+     *
+     * ADMIN            -> CRUD
+     * FINANCE_OFFICER  -> CRUD
+     * SALES_OFFICER    -> VIEW
+     * PHARMACIST       -> VIEW
+     */
+
+    const canManageInvoices =
+        currentRole === "ADMIN" ||
+        currentRole === "FINANCE_OFFICER";
+
+
+    let editingId = null;
+
+
+    /* =====================================================
+       OPEN ADD MODAL
+       ===================================================== */
+
+    function openAddModal() {
+
+        if (!canManageInvoices) {
+
+            alert(
+                "You do not have permission to create invoices."
+            );
+
+            return;
+
+        }
+
+
+        editingId = null;
+
+
+        document
+            .getElementById("invoiceForm")
+            .reset();
+
+
+        document
+            .getElementById("modalTitle")
+            .textContent =
+            "Add Invoice";
+
+
+        document
+            .getElementById("saveButtonText")
+            .textContent =
+            "Save Invoice";
+
+
+        document
+            .getElementById("invoiceModal")
+            .classList.add("show");
+
+    }
+
+
+    /* =====================================================
+       CLOSE MODAL
+       ===================================================== */
+
+    function closeModal() {
+
+        editingId = null;
+
+
+        document
+            .getElementById("invoiceForm")
+            .reset();
+
+
+        document
+            .getElementById("invoiceModal")
+            .classList.remove("show");
+
+    }
+
+
+    /* =====================================================
+       LOAD INVOICES
+       ===================================================== */
+
+    async function loadInvoices() {
+
+        const tableBody =
+            document.getElementById(
+                "invoiceTableBody"
+            );
+
+
+        const message =
+            document.getElementById(
+                "message"
+            );
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/invoices"
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to load invoices"
+                );
+
+            }
+
+
+            const invoices =
+                await response.json();
+
+
+            tableBody.innerHTML = "";
+
+
+            document
+                .getElementById("invoiceCount")
+                .textContent =
+                `${invoices.length} Invoice${
+                    invoices.length === 1
+                        ? ""
+                        : "s"
+                }`;
+
+
+            if (invoices.length === 0) {
+
+                message.style.display =
+                    "block";
+
+                message.textContent =
+                    "No invoices available.";
+
+                return;
+
+            }
+
+
+            message.style.display =
+                "none";
+
+
+            invoices.forEach(
+                invoice => {
+
+                    const row =
+                        document.createElement(
+                            "tr"
+                        );
+
+
+                    const actionHtml =
+                        canManageInvoices
+
+                            ? `
+                                <div class="actions">
+
+                                    <button
+                                        class="edit-button"
+                                        onclick="editInvoice(${invoice.id})">
+
+                                        <i class="fa-solid fa-pen"></i>
+                                        Edit
+
+                                    </button>
+
+
+                                    <button
+                                        class="delete-button"
+                                        onclick="deleteInvoice(${invoice.id})">
+
+                                        <i class="fa-solid fa-trash"></i>
+                                        Delete
+
+                                    </button>
+
+                                </div>
+                              `
+
+                            : `
+                                <span class="view-only">
+
+                                    <i class="fa-solid fa-eye"></i>
+                                    View Only
+
+                                </span>
+                              `;
+
+
+                    row.innerHTML = `
+
+                        <td>
+
+                            <span class="invoice-id">
+                                ${invoice.id}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <div class="medicine-cell">
+
+                                <div class="medicine-icon">
+
+                                    <i class="fa-solid fa-pills"></i>
+
+                                </div>
+
+                                <span class="medicine-name">
+                                    ${escapeHtml(
+                        invoice.medicineName
+                    )}
+                                </span>
+
+                            </div>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="quantity">
+                                ${invoice.quantity}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="amount">
+                                Rs.
+                                ${Number(
+                        invoice.totalAmount || 0
+                    ).toFixed(2)}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+
+                            <span class="date-value">
+                                ${escapeHtml(
+                        invoice.date || "-"
+                    )}
+                            </span>
+
+                        </td>
+
+
+                        <td>
+                            ${actionHtml}
+                        </td>
+
+                    `;
+
+
+                    tableBody.appendChild(
+                        row
+                    );
+
+                }
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                "Invoice error:",
+                error
+            );
+
+
+            tableBody.innerHTML =
+                "";
+
+
+            message.style.display =
+                "block";
+
+
+            message.textContent =
+                "Unable to load invoices.";
+
+        }
+
+    }
+
+
+    /* =====================================================
+       CREATE / UPDATE
+       ===================================================== */
+
+    document
+        .getElementById("invoiceForm")
+        .addEventListener(
+            "submit",
+            async function(event) {
+
+                event.preventDefault();
+
+
+                if (!canManageInvoices) {
+
+                    alert(
+                        "You do not have permission to manage invoices."
+                    );
+
+                    return;
+
+                }
+
+
+                const invoice = {
+
+                    medicineName:
+                        document
+                            .getElementById(
+                                "medicineName"
+                            )
+                            .value
+                            .trim(),
+
+                    quantity:
+                        parseInt(
+                            document
+                                .getElementById(
+                                    "quantity"
+                                )
+                                .value
+                        ),
+
+                    totalAmount:
+                        parseFloat(
+                            document
+                                .getElementById(
+                                    "totalAmount"
+                                )
+                                .value
+                        ),
+
+                    date:
+                    document
+                        .getElementById(
+                            "date"
+                        )
+                        .value
+
+                };
+
+
+                if (!invoice.medicineName) {
+
+                    alert(
+                        "Medicine name is required."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    !invoice.quantity ||
+                    invoice.quantity <= 0
+                ) {
+
+                    alert(
+                        "Quantity must be greater than 0."
+                    );
+
+                    return;
+
+                }
+
+
+                if (
+                    !invoice.totalAmount ||
+                    invoice.totalAmount <= 0
+                ) {
+
+                    alert(
+                        "Total amount must be greater than 0."
+                    );
+
+                    return;
+
+                }
+
+
+                if (!invoice.date) {
+
+                    alert(
+                        "Date is required."
+                    );
+
+                    return;
+
+                }
+
+
+                try {
+
+                    let response;
+
+
+                    if (
+                        editingId !== null
+                    ) {
+
+                        response =
+                            await fetch(
+                                `/api/invoices/${editingId}`,
+                                {
+                                    method:
+                                        "PUT",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(
+                                            invoice
+                                        )
+                                }
+                            );
+
+                    }
+
+                    else {
+
+                        response =
+                            await fetch(
+                                "/api/invoices",
+                                {
+                                    method:
+                                        "POST",
+
+                                    headers: {
+                                        "Content-Type":
+                                            "application/json"
+                                    },
+
+                                    body:
+                                        JSON.stringify(
+                                            invoice
+                                        )
+                                }
+                            );
+
+                    }
+
+
+                    const responseText =
+                        await response.text();
+
+
+                    if (!response.ok) {
+
+                        throw new Error(
+                            responseText ||
+                            "Failed to save invoice"
+                        );
+
+                    }
+
+
+                    closeModal();
+
+                    await loadInvoices();
+
+
+                    alert(
+                        editingId !== null
+                            ? "Invoice updated successfully."
+                            : "Invoice created successfully."
+                    );
+
+                }
+
+                catch (error) {
+
+                    console.error(
+                        error
+                    );
+
+
+                    alert(
+                        error.message ||
+                        "Something went wrong while saving the invoice."
+                    );
+
+                }
+
+            }
+        );
+
+
+    /* =====================================================
+       EDIT INVOICE
+       ===================================================== */
+
+    async function editInvoice(id) {
+
+        if (!canManageInvoices) {
+
+            alert(
+                "You have view-only access to invoices."
+            );
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/invoices/${id}`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    "Failed to get invoice"
+                );
+
+            }
+
+
+            const invoice =
+                await response.json();
+
+
+            editingId =
+                id;
+
+
+            document
+                .getElementById(
+                    "medicineName"
+                )
+                .value =
+                invoice.medicineName || "";
+
+
+            document
+                .getElementById(
+                    "quantity"
+                )
+                .value =
+                invoice.quantity || "";
+
+
+            document
+                .getElementById(
+                    "totalAmount"
+                )
+                .value =
+                invoice.totalAmount || "";
+
+
+            document
+                .getElementById(
+                    "date"
+                )
+                .value =
+                invoice.date || "";
+
+
+            document
+                .getElementById(
+                    "modalTitle"
+                )
+                .textContent =
+                "Edit Invoice";
+
+
+            document
+                .getElementById(
+                    "saveButtonText"
+                )
+                .textContent =
+                "Update Invoice";
+
+
+            document
+                .getElementById(
+                    "invoiceModal"
+                )
+                .classList.add("show");
+
+        }
+
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            alert(
+                "Unable to load invoice."
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       DELETE
+       ===================================================== */
+
+    async function deleteInvoice(id) {
+
+        if (!canManageInvoices) {
+
+            alert(
+                "You do not have permission to delete invoices."
+            );
+
+            return;
+
+        }
+
+
+        const confirmed =
+            confirm(
+                "Are you sure you want to delete this invoice?"
+            );
+
+
+        if (!confirmed) {
+            return;
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/invoices/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            const responseText =
+                await response.text();
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    responseText ||
+                    "Failed to delete invoice"
+                );
+
+            }
+
+
+            await loadInvoices();
+
+
+            alert(
+                "Invoice deleted successfully."
+            );
+
+        }
+
+        catch (error) {
+
+            console.error(
+                error
+            );
+
+
+            alert(
+                error.message ||
+                "Unable to delete invoice."
+            );
+
+        }
+
+    }
+
+
+    /* =====================================================
+       ESCAPE HTML
+       ===================================================== */
+
+    function escapeHtml(value) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+
+        }
+
+
+        return String(value)
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    /* =====================================================
+       CLOSE MODAL OUTSIDE CLICK
+       ===================================================== */
+
+    document
+        .getElementById("invoiceModal")
+        .addEventListener(
+            "click",
+            function(event) {
+
+                if (
+                    event.target ===
+                    document.getElementById(
+                        "invoiceModal"
+                    )
+                ) {
+
+                    closeModal();
+
+                }
+
+            }
+        );
+
+
+    /* =====================================================
+       ESC KEY
+       ===================================================== */
+
+    document.addEventListener(
+        "keydown",
+        function(event) {
+
+            if (
+                event.key === "Escape"
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+
+    /* =====================================================
+       INITIAL LOAD
+       ===================================================== */
+
+    loadInvoices();
+
+</script>
+
+
+</body>
+</html>

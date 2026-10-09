@@ -1,0 +1,834 @@
+/* =========================================================
+   LOGIN PAGE
+   ========================================================= */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body.login-page {
+
+    font-family:
+            "Segoe UI",
+            Arial,
+            Helvetica,
+            sans-serif;
+
+    min-height: 100vh;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #f4f8ff 0%,
+                    #eef5ff 50%,
+                    #f8fbff 100%
+            );
+
+    color: #102a43;
+
+    overflow-x: hidden;
+}
+
+
+/* =========================================================
+   BACKGROUND
+   ========================================================= */
+
+.login-background {
+
+    min-height: 100vh;
+
+    width: 100%;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    padding: 40px 20px;
+
+    position: relative;
+
+    overflow: hidden;
+}
+
+
+/* =========================================================
+   BACKGROUND DECORATIVE CIRCLES
+   ========================================================= */
+
+.login-background::before {
+
+    content: "";
+
+    position: absolute;
+
+    width: 500px;
+
+    height: 500px;
+
+    border-radius: 50%;
+
+    background: rgba(37, 99, 235, 0.06);
+
+    top: -230px;
+
+    left: -180px;
+}
+
+
+.login-background::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 600px;
+
+    height: 600px;
+
+    border-radius: 50%;
+
+    border: 1px solid rgba(37, 99, 235, 0.08);
+
+    right: -300px;
+
+    bottom: -320px;
+}
+
+
+/* =========================================================
+   DECORATIVE DOTS
+   ========================================================= */
+
+.decorative-dots {
+
+    position: absolute;
+
+    display: grid;
+
+    grid-template-columns:
+            repeat(3, 7px);
+
+    gap: 11px;
+
+    opacity: 0.55;
+
+    z-index: 0;
+}
+
+
+.decorative-dots span {
+
+    width: 7px;
+
+    height: 7px;
+
+    border-radius: 50%;
+
+    background: #b7cdf9;
+}
+
+
+.dots-left {
+
+    top: 18%;
+
+    left: 6%;
+}
+
+
+.dots-right {
+
+    right: 7%;
+
+    bottom: 18%;
+}
+
+
+/* =========================================================
+   LOGIN CARD
+   ========================================================= */
+
+.login-card {
+
+    width: min(1000px, 100%);
+
+    min-height: 650px;
+
+    background: #ffffff;
+
+    border-radius: 26px;
+
+    overflow: hidden;
+
+    display: grid;
+
+    grid-template-columns: 45% 55%;
+
+    position: relative;
+
+    z-index: 2;
+
+    box-shadow:
+            0 25px 70px rgba(15, 35, 70, 0.14);
+
+    border: 1px solid rgba(220, 230, 242, 0.9);
+}
+
+
+/* =========================================================
+   LEFT IMAGE SECTION
+   ========================================================= */
+
+.login-image-section {
+
+    position: relative;
+
+    min-height: 650px;
+
+    background-image:
+            url("https://images.unsplash.com/photo-1585435557343-3b092031a831?auto=format&fit=crop&w=1000&q=85");
+
+    background-size: cover;
+
+    background-position: center;
+
+    display: flex;
+
+    align-items: flex-end;
+
+    padding: 50px;
+}
+
+
+/* =========================================================
+   IMAGE OVERLAY
+   ========================================================= */
+
+.image-overlay {
+
+    position: absolute;
+
+    inset: 0;
+
+    background:
+            linear-gradient(
+                    to top,
+                    rgba(9, 45, 105, 0.82),
+                    rgba(20, 82, 160, 0.18)
+            );
+}
+
+
+/* =========================================================
+   IMAGE CONTENT
+   ========================================================= */
+
+.pharmacy-image-content {
+
+    position: relative;
+
+    z-index: 2;
+
+    color: white;
+
+    max-width: 360px;
+}
+
+
+/* =========================================================
+   PHARMACY BADGE
+   ========================================================= */
+
+.pharmacy-badge {
+
+    width: 55px;
+
+    height: 55px;
+
+    border-radius: 15px;
+
+    background:
+            rgba(255, 255, 255, 0.16);
+
+    border:
+            1px solid rgba(255, 255, 255, 0.3);
+
+    backdrop-filter: blur(8px);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    margin-bottom: 25px;
+}
+
+
+.pharmacy-badge i {
+
+    font-size: 25px;
+
+    color: white;
+}
+
+
+/* =========================================================
+   IMAGE TITLE
+   ========================================================= */
+
+.pharmacy-image-content h2 {
+
+    font-size: 36px;
+
+    line-height: 1.15;
+
+    font-weight: 750;
+
+    margin-bottom: 18px;
+
+    letter-spacing: -0.5px;
+}
+
+
+/* =========================================================
+   IMAGE DESCRIPTION
+   ========================================================= */
+
+.pharmacy-image-content p {
+
+    font-size: 15px;
+
+    line-height: 1.7;
+
+    color:
+            rgba(255, 255, 255, 0.88);
+}
+
+
+/* =========================================================
+   RIGHT LOGIN FORM SECTION
+   ========================================================= */
+
+.login-form-section {
+
+    padding: 55px 65px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    justify-content: center;
+
+    background: #ffffff;
+}
+
+
+/* =========================================================
+   LOGIN LOGO
+   ========================================================= */
+
+.login-logo {
+
+    display: flex;
+
+    justify-content: center;
+
+    margin-bottom: 18px;
+}
+
+
+.login-logo-icon {
+
+    width: 66px;
+
+    height: 66px;
+
+    border-radius: 18px;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #eaf2ff,
+                    #dceaff
+            );
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    color: #2563eb;
+
+    box-shadow:
+            0 8px 25px rgba(37, 99, 235, 0.12);
+}
+
+
+.login-logo-icon i {
+
+    font-size: 31px;
+}
+
+
+/* =========================================================
+   LOGIN TITLE
+   ========================================================= */
+
+.login-form-section h1 {
+
+    text-align: center;
+
+    font-size: 30px;
+
+    line-height: 1.2;
+
+    font-weight: 750;
+
+    color: #12305b;
+
+    margin-bottom: 12px;
+}
+
+
+/* =========================================================
+   LOGIN SUBTITLE
+   ========================================================= */
+
+.login-subtitle {
+
+    text-align: center;
+
+    color: #71839a;
+
+    font-size: 14px;
+
+    margin-bottom: 34px;
+}
+
+
+/* =========================================================
+   LOGIN FORM
+   ========================================================= */
+
+.login-form {
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   FORM GROUP
+   ========================================================= */
+
+.form-group {
+
+    margin-bottom: 21px;
+}
+
+
+.form-group label {
+
+    display: block;
+
+    font-size: 14px;
+
+    font-weight: 650;
+
+    color: #243b53;
+
+    margin-bottom: 9px;
+}
+
+
+/* =========================================================
+   INPUT WRAPPER
+   ========================================================= */
+
+.input-wrapper {
+
+    position: relative;
+
+    width: 100%;
+}
+
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+
+.input-wrapper input {
+
+    width: 100%;
+
+    height: 52px;
+
+    border: 1px solid #d6dfeb;
+
+    border-radius: 11px;
+
+    outline: none;
+
+    padding:
+            0 48px 0 43px;
+
+    font-size: 14px;
+
+    color: #243b53;
+
+    background: #ffffff;
+
+    transition:
+            border-color 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease;
+}
+
+
+.input-wrapper input::placeholder {
+
+    color: #9aa9bb;
+}
+
+
+.input-wrapper input:hover {
+
+    border-color: #b9c8da;
+}
+
+
+.input-wrapper input:focus {
+
+    border-color: #2563eb;
+
+    background: #ffffff;
+
+    box-shadow:
+            0 0 0 4px rgba(37, 99, 235, 0.10);
+}
+
+
+/* =========================================================
+   INPUT ICON
+   ========================================================= */
+
+.input-icon {
+
+    position: absolute;
+
+    left: 16px;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: #7c8da3;
+
+    font-size: 16px;
+
+    pointer-events: none;
+
+    z-index: 2;
+}
+
+
+/* =========================================================
+   PASSWORD TOGGLE
+   ========================================================= */
+
+.password-toggle {
+
+    position: absolute;
+
+    right: 13px;
+
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    width: 32px;
+
+    height: 32px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #7c8da3;
+
+    cursor: pointer;
+
+    border-radius: 8px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    transition: 0.2s ease;
+}
+
+
+.password-toggle:hover {
+
+    background: #eef4ff;
+
+    color: #2563eb;
+}
+
+
+/* =========================================================
+   ERROR MESSAGE
+   ========================================================= */
+
+.login-error {
+
+    background: #fff1f2;
+
+    color: #dc2626;
+
+    border: 1px solid #fecdd3;
+
+    border-radius: 9px;
+
+    padding: 11px 13px;
+
+    font-size: 13px;
+
+    margin-bottom: 18px;
+}
+
+
+/* =========================================================
+   LOGIN BUTTON
+   ========================================================= */
+
+.login-button {
+
+    width: 100%;
+
+    height: 52px;
+
+    border: none;
+
+    border-radius: 11px;
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #2563eb,
+                    #1d4ed8
+            );
+
+    color: white;
+
+    font-size: 15px;
+
+    font-weight: 650;
+
+    cursor: pointer;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 9px;
+
+    box-shadow:
+            0 9px 22px rgba(37, 99, 235, 0.23);
+
+    transition:
+            transform 0.2s ease,
+            box-shadow 0.2s ease,
+            background 0.2s ease;
+}
+
+
+.login-button:hover {
+
+    transform: translateY(-1px);
+
+    box-shadow:
+            0 13px 28px rgba(37, 99, 235, 0.30);
+
+    background:
+            linear-gradient(
+                    135deg,
+                    #1d4ed8,
+                    #1e40af
+            );
+}
+
+
+.login-button:active {
+
+    transform: translateY(0);
+}
+
+
+/* =========================================================
+   DISABLED LOGIN BUTTON
+   ========================================================= */
+
+.login-button:disabled {
+
+    opacity: 0.75;
+
+    cursor: not-allowed;
+
+    transform: none;
+
+    box-shadow:
+            0 9px 22px rgba(37, 99, 235, 0.15);
+}
+
+
+/* =========================================================
+   SECURITY NOTE
+   ========================================================= */
+
+.security-note {
+
+    margin-top: 28px;
+
+    display: flex;
+
+    justify-content: center;
+
+    align-items: center;
+
+    gap: 8px;
+
+    color: #71839a;
+
+    font-size: 12px;
+}
+
+
+.security-note i {
+
+    color: #22a06b;
+
+    font-size: 14px;
+}
+
+
+/* =========================================================
+   FOOTER
+   ========================================================= */
+
+.login-footer {
+
+    text-align: center;
+
+    margin-top: 25px;
+
+    font-size: 11px;
+
+    color: #a0aec0;
+}
+
+
+/* =========================================================
+   RESPONSIVE - TABLET
+   ========================================================= */
+
+@media (max-width: 850px) {
+
+    .login-card {
+
+        grid-template-columns: 1fr;
+
+        max-width: 560px;
+
+        min-height: auto;
+    }
+
+
+    .login-image-section {
+
+        min-height: 260px;
+
+        padding: 35px;
+    }
+
+
+    .pharmacy-image-content h2 {
+
+        font-size: 28px;
+    }
+
+
+    .login-form-section {
+
+        padding: 45px 40px;
+    }
+
+}
+
+
+/* =========================================================
+   RESPONSIVE - MOBILE
+   ========================================================= */
+
+@media (max-width: 520px) {
+
+    .login-background {
+
+        padding: 20px 14px;
+    }
+
+
+    .login-card {
+
+        border-radius: 20px;
+    }
+
+
+    .login-image-section {
+
+        min-height: 220px;
+
+        padding: 28px;
+    }
+
+
+    .pharmacy-image-content h2 {
+
+        font-size: 25px;
+    }
+
+
+    .pharmacy-image-content p {
+
+        font-size: 13px;
+    }
+
+
+    .login-form-section {
+
+        padding: 35px 25px;
+    }
+
+
+    .login-form-section h1 {
+
+        font-size: 25px;
+    }
+
+
+    .decorative-dots {
+
+        display: none;
+    }
+
+}

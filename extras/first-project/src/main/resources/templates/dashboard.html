@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard - Pharmacy Management System</title>
+
+    <!-- =====================================================
+         GLOBAL DESIGN SYSTEM / COMMON NAVBAR CSS
+         ===================================================== -->
+    <link rel="stylesheet"
+          href="/style.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+
+    <style>
+
+        /* =====================================================
+           GLOBAL
+           ===================================================== */
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+
+
+        body {
+            background: #f7f9fc;
+            color: #0f172a;
+        }
+
+
+        /* =====================================================
+           DASHBOARD CONTAINER
+           ===================================================== */
+
+        .dashboard-container {
+            max-width: 1260px;
+            margin: auto;
+            padding: 55px 24px 70px;
+        }
+
+
+        /* =====================================================
+           PAGE HEADER
+           ===================================================== */
+
+        .dashboard-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 55px;
+        }
+
+
+        .dashboard-header h1 {
+            font-size: 38px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+
+
+        .dashboard-header p {
+            color: #64748b;
+            font-size: 18px;
+        }
+
+
+        /* =====================================================
+           DASHBOARD GRID
+           ===================================================== */
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 22px;
+        }
+
+
+        /* =====================================================
+           DASHBOARD CARD
+           ===================================================== */
+
+        .dashboard-card {
+            background: white;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 18px;
+
+            padding: 28px;
+
+            min-height: 155px;
+
+            box-shadow:
+                    0 8px 25px rgba(15, 23, 42, 0.06);
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 22px;
+
+            transition: 0.2s;
+        }
+
+
+        .dashboard-card:hover {
+            transform: translateY(-2px);
+
+            box-shadow:
+                    0 12px 30px rgba(15, 23, 42, 0.09);
+        }
+
+
+        /* =====================================================
+           DASHBOARD ICON
+           ===================================================== */
+
+        .dashboard-icon {
+            width: 66px;
+
+            height: 66px;
+
+            min-width: 66px;
+
+            border-radius: 16px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 28px;
+        }
+
+
+        /* BLUE */
+
+        .dashboard-icon.blue {
+            background: #eff6ff;
+            color: #2563eb;
+        }
+
+
+        /* RED */
+
+        .dashboard-icon.red {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+
+        /* ORANGE */
+
+        .dashboard-icon.orange {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+
+        /* PURPLE */
+
+        .dashboard-icon.purple {
+            background: #f5f3ff;
+            color: #7c3aed;
+        }
+
+
+        /* GREEN */
+
+        .dashboard-icon.green {
+            background: #f0fdf4;
+            color: #16a34a;
+        }
+
+
+        /* =====================================================
+           CARD CONTENT
+           ===================================================== */
+
+        .dashboard-card-content {
+            flex: 1;
+        }
+
+
+        .dashboard-label {
+            color: #64748b;
+
+            font-size: 16px;
+
+            font-weight: 600;
+
+            margin-bottom: 10px;
+        }
+
+
+        .dashboard-card h2 {
+            color: #2563eb;
+
+            font-size: 34px;
+
+            font-weight: 700;
+        }
+
+
+        .dashboard-card h2.red-text {
+            color: #dc2626;
+        }
+
+
+        .dashboard-card h2.orange-text {
+            color: #ea580c;
+        }
+
+
+        .dashboard-card h2.purple-text {
+            color: #7c3aed;
+        }
+
+
+        .dashboard-card h2.green-text {
+            color: #16a34a;
+        }
+
+
+        /* =====================================================
+           REVENUE
+           ===================================================== */
+
+        .revenue-card {
+            grid-column: 1 / -1;
+        }
+
+
+        .revenue-card h2 {
+            font-size: 34px;
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        @media (max-width: 900px) {
+
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+
+
+            .revenue-card {
+                grid-column: auto;
+            }
+
+
+            .dashboard-container {
+                padding: 40px 20px 60px;
+            }
+
+        }
+
+
+        @media (max-width: 600px) {
+
+            .dashboard-header {
+                margin-bottom: 35px;
+            }
+
+
+            .dashboard-header h1 {
+                font-size: 32px;
+            }
+
+
+            .dashboard-header p {
+                font-size: 16px;
+            }
+
+
+            .dashboard-card {
+                padding: 22px;
+            }
+
+
+            .dashboard-icon {
+                width: 56px;
+                height: 56px;
+                min-width: 56px;
+                font-size: 24px;
+            }
+
+
+            .dashboard-card h2 {
+                font-size: 29px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     COMMON NAVBAR
+     ===================================================== -->
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+
+<!-- =====================================================
+     MAIN CONTENT
+     ===================================================== -->
+
+<main class="dashboard-container">
+
+
+    <!-- =================================================
+         PAGE HEADER
+         ================================================= -->
+
+    <section class="dashboard-header">
+
+        <div>
+
+            <h1>
+                Dashboard
+            </h1>
+
+            <p>
+                Overview of your pharmacy management system.
+            </p>
+
+        </div>
+
+    </section>
+
+
+
+    <!-- =================================================
+         DASHBOARD STATISTICS
+         ================================================= -->
+
+    <section class="dashboard-grid">
+
+
+        <!-- =================================================
+             TOTAL MEDICINES
+             ================================================= -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon blue">
+
+                <i class="fa-solid fa-pills"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Total Medicines
+                </p>
+
+                <h2 th:text="${medicineCount}">
+                    0
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             TOTAL SUPPLIERS
+             ================================================= -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon blue">
+
+                <i class="fa-solid fa-truck-medical"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Total Suppliers
+                </p>
+
+                <h2 th:text="${supplierCount}">
+                    0
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             STOCK ITEMS
+             ================================================= -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon blue">
+
+                <i class="fa-solid fa-boxes-stacked"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Stock Items
+                </p>
+
+                <h2 th:text="${stockCount}">
+                    0
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             LOW STOCK
+             ================================================= -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon red">
+
+                <i class="fa-solid fa-triangle-exclamation"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Low Stock Items
+                </p>
+
+                <h2 class="red-text"
+                    th:text="${lowStockCount}">
+
+                    0
+
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             EXPIRING ITEMS
+             ================================================= -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon orange">
+
+                <i class="fa-solid fa-calendar-xmark"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Expiring Items
+                </p>
+
+                <h2 class="orange-text"
+                    th:text="${expiringCount}">
+
+                    0
+
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             PRESCRIPTIONS
+             ================================================= -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon purple">
+
+                <i class="fa-solid fa-file-prescription"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Prescriptions
+                </p>
+
+                <h2 class="purple-text"
+                    th:text="${prescriptionCount}">
+
+                    0
+
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             TOTAL SALES
+             ================================================= -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon green">
+
+                <i class="fa-solid fa-cart-shopping"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Total Sales
+                </p>
+
+                <h2 class="green-text"
+                    th:text="${salesCount}">
+
+                    0
+
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             TOTAL INVOICES
+             ================================================= -->
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon blue">
+
+                <i class="fa-solid fa-file-invoice"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Total Invoices
+                </p>
+
+                <h2 th:text="${invoiceCount}">
+                    0
+                </h2>
+
+            </div>
+
+        </div>
+
+
+
+        <!-- =================================================
+             TOTAL REVENUE
+             ================================================= -->
+
+        <div class="dashboard-card revenue-card">
+
+            <div class="dashboard-icon purple">
+
+                <i class="fa-solid fa-money-bill-wave"></i>
+
+            </div>
+
+
+            <div class="dashboard-card-content">
+
+                <p class="dashboard-label">
+                    Total Revenue
+                </p>
+
+                <h2 class="purple-text">
+
+                    Rs.
+
+                    <span th:text="${totalRevenue}">
+                        0.00
+                    </span>
+
+                </h2>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+</main>
+
+
+</body>
+
+</html>

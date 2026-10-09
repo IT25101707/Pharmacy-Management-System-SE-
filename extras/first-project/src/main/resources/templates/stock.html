@@ -1,0 +1,1825 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Stock - Pharmacy Management System</title>
+
+    <link rel="stylesheet"
+          href="/style.css">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+
+    <style>
+
+        /* =====================================================
+           PAGE
+           ===================================================== */
+
+        .page-container {
+            max-width: 1250px;
+            margin: 0 auto;
+            padding: 55px 30px 70px;
+        }
+
+
+        /* =====================================================
+           PAGE HEADER
+           ===================================================== */
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 38px;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+
+        .page-header p {
+            margin-top: 9px;
+            color: #64748b;
+            font-size: 17px;
+        }
+
+
+        /* =====================================================
+           BUTTONS
+           ===================================================== */
+
+        .primary-button {
+            border: none;
+            background: #2563eb;
+            color: white;
+            padding: 13px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 700;
+            transition: 0.2s;
+        }
+
+
+        .primary-button:hover {
+            background: #1d4ed8;
+        }
+
+
+        .secondary-button {
+            border: none;
+            background: #e5e7eb;
+            color: #111827;
+            padding: 13px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 700;
+        }
+
+
+        .secondary-button:hover {
+            background: #dbe0e6;
+        }
+
+
+        /* =====================================================
+           MESSAGE
+           ===================================================== */
+
+        .message {
+            display: none;
+            padding: 13px 16px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+
+        .message.success {
+            display: block;
+            background: #dcfce7;
+            color: #166534;
+        }
+
+
+        .message.error {
+            display: block;
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+
+        /* =====================================================
+           CONTENT CARD
+           ===================================================== */
+
+        .content-card {
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow:
+                    0 8px 25px rgba(15, 23, 42, 0.07);
+            border: 1px solid #e5e7eb;
+        }
+
+
+        /* =====================================================
+           CARD HEADER
+           ===================================================== */
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+        }
+
+
+        .card-header h2 {
+            margin: 0;
+            color: #173b73;
+            font-size: 23px;
+        }
+
+
+        .card-header h2 i {
+            margin-right: 8px;
+            color: #2563eb;
+        }
+
+
+        .count-badge {
+            background: #eff6ff;
+            color: #2563eb;
+            padding: 9px 15px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           TABLE
+           ===================================================== */
+
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+
+        th {
+            background: #2563eb;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+
+        th:first-child {
+            border-radius: 9px 0 0 9px;
+        }
+
+
+        th:last-child {
+            border-radius: 0 9px 9px 0;
+        }
+
+
+        td {
+            padding: 16px 15px;
+            border-bottom: 1px solid #e5e7eb;
+            color: #17345d;
+            font-size: 14px;
+        }
+
+
+        tbody tr:hover {
+            background: #f8fafc;
+        }
+
+
+        /* =====================================================
+           MEDICINE
+           ===================================================== */
+
+        .medicine-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+
+        .medicine-icon {
+            width: 38px;
+            height: 38px;
+            border-radius: 9px;
+            background: #eff6ff;
+            color: #2563eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+
+        /* =====================================================
+           QUANTITY COLORS
+           ===================================================== */
+
+        .quantity-normal {
+            color: #166534;
+            font-weight: 700;
+        }
+
+
+        .quantity-warning {
+            color: #d97706;
+            font-weight: 700;
+        }
+
+
+        .quantity-danger {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           EXPIRY COLORS
+           ===================================================== */
+
+        .expiry-normal {
+            color: #166534;
+            font-weight: 600;
+        }
+
+
+        .expiry-warning {
+            color: #d97706;
+            font-weight: 700;
+        }
+
+
+        .expiry-danger {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           ACTION BUTTONS
+           ===================================================== */
+
+        .action-buttons {
+            display: flex;
+            gap: 7px;
+        }
+
+
+        .edit-action,
+        .delete-action {
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+
+
+        .edit-action {
+            background: #fff7ed;
+            color: #ea580c;
+        }
+
+
+        .delete-action {
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+
+        .edit-action:hover {
+            background: #ffedd5;
+        }
+
+
+        .delete-action:hover {
+            background: #fee2e2;
+        }
+
+
+        /* =====================================================
+           EMPTY STATE
+           ===================================================== */
+
+        .empty-state {
+            text-align: center;
+            padding: 55px;
+            color: #64748b;
+        }
+
+
+        .empty-state i {
+            font-size: 28px;
+            color: #94a3b8;
+            margin-bottom: 10px;
+        }
+
+
+        /* =====================================================
+           MODAL
+           ===================================================== */
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.45);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+
+        .modal {
+            width: 100%;
+            max-width: 600px;
+            background: white;
+            border-radius: 18px;
+            padding: 28px;
+            box-shadow:
+                    0 25px 70px rgba(15, 23, 42, 0.25);
+        }
+
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+
+        .modal-header h2 {
+            margin: 0;
+            color: #173b73;
+        }
+
+
+        .modal-close {
+            border: none;
+            background: #f1f5f9;
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+
+        .modal-close:hover {
+            background: #e2e8f0;
+        }
+
+
+        /* =====================================================
+           FORM
+           ===================================================== */
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 18px;
+        }
+
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+
+        .form-group label {
+            margin-bottom: 7px;
+            font-weight: 600;
+            color: #334155;
+        }
+
+
+        .form-group input {
+            height: 44px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 0 12px;
+            outline: none;
+        }
+
+
+        .form-group input:focus {
+            border-color: #2563eb;
+            box-shadow:
+                    0 0 0 3px
+                    rgba(37, 99, 235, 0.1);
+        }
+
+
+        /* =====================================================
+           MODAL ACTIONS
+           ===================================================== */
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 25px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+
+
+        /* =====================================================
+           MOBILE
+           ===================================================== */
+
+        @media (max-width: 750px) {
+
+            .page-container {
+                padding: 35px 16px 60px;
+            }
+
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+
+            .page-header h1 {
+                font-size: 30px;
+            }
+
+
+            .primary-button {
+                width: 100%;
+            }
+
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     COMMON NAVBAR
+     ===================================================== -->
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+
+
+<!-- =====================================================
+     MAIN CONTENT
+     ===================================================== -->
+
+<main class="page-container">
+
+
+    <!-- =================================================
+         PAGE HEADER
+         ================================================= -->
+
+    <div class="page-header">
+
+
+        <div>
+
+            <h1>
+                Stock
+            </h1>
+
+            <p>
+                Manage and monitor pharmacy stock.
+            </p>
+
+        </div>
+
+
+        <!-- ADMIN + INVENTORY OFFICER -->
+
+        <button
+                id="addStockButton"
+                class="primary-button"
+                onclick="openAddModal()">
+
+            <i class="fa-solid fa-plus"></i>
+
+            Add Stock
+
+        </button>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         MESSAGE
+         ================================================= -->
+
+    <div id="message"
+         class="message">
+    </div>
+
+
+
+    <!-- =================================================
+         STOCK CARD
+         ================================================= -->
+
+    <div class="content-card">
+
+
+        <div class="card-header">
+
+
+            <h2>
+
+                <i class="fa-solid fa-boxes-stacked"></i>
+
+                Stock List
+
+            </h2>
+
+
+            <span
+                    id="stockCount"
+                    class="count-badge">
+
+                0 Stock Items
+
+            </span>
+
+
+        </div>
+
+
+
+        <div class="table-wrapper">
+
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>
+                        ID
+                    </th>
+
+                    <th>
+                        Medicine
+                    </th>
+
+                    <th>
+                        Quantity
+                    </th>
+
+                    <th>
+                        Minimum Quantity
+                    </th>
+
+                    <th>
+                        Expiry Date
+                    </th>
+
+                    <th id="actionsHeader">
+                        Actions
+                    </th>
+
+                </tr>
+
+                </thead>
+
+
+                <tbody id="stockTableBody">
+
+                <tr>
+
+                    <td colspan="6"
+                        class="empty-state">
+
+                        Loading stock...
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+
+        </div>
+
+
+    </div>
+
+
+</main>
+
+
+
+<!-- =====================================================
+     ADD / EDIT MODAL
+     ===================================================== -->
+
+<div id="stockModal"
+     class="modal-overlay">
+
+
+    <div class="modal">
+
+
+        <div class="modal-header">
+
+
+            <h2 id="modalTitle">
+                Add Stock
+            </h2>
+
+
+            <button
+                    class="modal-close"
+                    onclick="closeModal()">
+
+                <i class="fa-solid fa-xmark"></i>
+
+            </button>
+
+
+        </div>
+
+
+
+        <form id="stockForm">
+
+
+            <input
+                    type="hidden"
+                    id="stockId">
+
+
+            <div class="form-grid">
+
+
+                <!-- MEDICINE -->
+
+                <div class="form-group">
+
+                    <label for="medicineName">
+                        Medicine Name
+                    </label>
+
+                    <input
+                            type="text"
+                            id="medicineName"
+                            required>
+
+                </div>
+
+
+
+                <!-- QUANTITY -->
+
+                <div class="form-group">
+
+                    <label for="quantity">
+                        Quantity
+                    </label>
+
+                    <input
+                            type="number"
+                            id="quantity"
+                            min="0"
+                            required>
+
+                </div>
+
+
+
+                <!-- MINIMUM QUANTITY -->
+
+                <div class="form-group">
+
+                    <label for="minimumQuantity">
+                        Minimum Quantity
+                    </label>
+
+                    <input
+                            type="number"
+                            id="minimumQuantity"
+                            min="0"
+                            required>
+
+                </div>
+
+
+
+                <!-- EXPIRY DATE -->
+
+                <div class="form-group">
+
+                    <label for="expiryDate">
+                        Expiry Date
+                    </label>
+
+                    <input
+                            type="date"
+                            id="expiryDate"
+                            required>
+
+                </div>
+
+
+            </div>
+
+
+
+            <div class="modal-actions">
+
+
+                <button
+                        type="button"
+                        class="secondary-button"
+                        onclick="closeModal()">
+
+                    Cancel
+
+                </button>
+
+
+                <button
+                        type="submit"
+                        class="primary-button">
+
+                    <i class="fa-solid fa-floppy-disk"></i>
+
+                    Save Stock
+
+                </button>
+
+
+            </div>
+
+
+        </form>
+
+
+    </div>
+
+</div>
+
+
+
+<script>
+
+
+    // =====================================================
+    // CURRENT USER ROLE
+    // =====================================================
+
+    const currentRole =
+        '[[${session.role}]]';
+
+
+
+    // =====================================================
+    // PERMISSIONS
+    // =====================================================
+
+    const canManageStock =
+        currentRole === 'ADMIN' ||
+        currentRole === 'INVENTORY_OFFICER';
+
+
+
+    // =====================================================
+    // ELEMENTS
+    // =====================================================
+
+    const modal =
+        document.getElementById(
+            "stockModal"
+        );
+
+
+    const stockForm =
+        document.getElementById(
+            "stockForm"
+        );
+
+
+    const tableBody =
+        document.getElementById(
+            "stockTableBody"
+        );
+
+
+    const messageBox =
+        document.getElementById(
+            "message"
+        );
+
+
+
+    // =====================================================
+    // READ-ONLY ROLE UI
+    // =====================================================
+
+    if (!canManageStock) {
+
+        document.getElementById(
+            "addStockButton"
+        ).style.display = "none";
+
+
+        document.getElementById(
+            "actionsHeader"
+        ).style.display = "none";
+
+    }
+
+
+
+    // =====================================================
+    // LOAD STOCK
+    // =====================================================
+
+    async function loadStock() {
+
+        try {
+
+            const response =
+                await fetch(
+                    "/api/stock"
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await getErrorMessage(
+                        response
+                    )
+                );
+
+            }
+
+
+            const stockList =
+                await response.json();
+
+
+            renderStock(stockList);
+
+
+        } catch (error) {
+
+            console.error(
+                "Stock error:",
+                error
+            );
+
+
+            tableBody.innerHTML = `
+
+                <tr>
+
+                    <td colspan="6"
+                        class="empty-state">
+
+                        Unable to load stock.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+
+            showMessage(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+
+    // =====================================================
+    // RENDER STOCK
+    // =====================================================
+
+    function renderStock(
+        stockList
+    ) {
+
+        tableBody.innerHTML = "";
+
+
+        document.getElementById(
+            "stockCount"
+        ).textContent =
+            `${stockList.length} Stock Items`;
+
+
+        if (
+            stockList.length === 0
+        ) {
+
+            tableBody.innerHTML = `
+
+                <tr>
+
+                    <td colspan="6"
+                        class="empty-state">
+
+                        <i class="fa-solid fa-box-open"></i>
+
+                        <br>
+
+                        No stock records found.
+
+                    </td>
+
+                </tr>
+
+            `;
+
+            return;
+
+        }
+
+
+
+        stockList.forEach(
+            stock => {
+
+
+                const row =
+                    document.createElement(
+                        "tr"
+                    );
+
+
+                const quantityClass =
+                    getQuantityClass(
+                        Number(stock.quantity),
+                        Number(stock.minimumQuantity)
+                    );
+
+
+                const expiryClass =
+                    getExpiryClass(
+                        stock.expiryDate
+                    );
+
+
+                let actions = "";
+
+
+
+                if (canManageStock) {
+
+                    actions = `
+
+                        <div class="action-buttons">
+
+
+                            <button
+                                    class="edit-action"
+                                    onclick="editStock(${stock.id})">
+
+                                <i class="fa-solid fa-pen"></i>
+
+                                Edit
+
+                            </button>
+
+
+                            <button
+                                    class="delete-action"
+                                    onclick="deleteStock(${stock.id})">
+
+                                <i class="fa-solid fa-trash"></i>
+
+                                Delete
+
+                            </button>
+
+
+                        </div>
+
+                    `;
+
+                }
+
+
+
+                row.innerHTML = `
+
+                    <td>
+                        ${escapeHtml(stock.id)}
+                    </td>
+
+
+                    <td>
+
+                        <div class="medicine-name">
+
+                            <span class="medicine-icon">
+
+                                <i class="fa-solid fa-pills"></i>
+
+                            </span>
+
+                            ${escapeHtml(
+                    stock.medicineName
+                )}
+
+                        </div>
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="${quantityClass}">
+
+                            ${escapeHtml(
+                    stock.quantity
+                )}
+
+                        </span>
+
+                    </td>
+
+
+                    <td>
+
+                        ${escapeHtml(
+                    stock.minimumQuantity
+                )}
+
+                    </td>
+
+
+                    <td>
+
+                        <span class="${expiryClass}">
+
+                            ${escapeHtml(
+                    stock.expiryDate
+                )}
+
+                        </span>
+
+                    </td>
+
+
+                    ${
+                    canManageStock
+
+                        ? `<td>${actions}</td>`
+
+                        : `<td style="display:none;"></td>`
+                }
+
+                `;
+
+
+                tableBody.appendChild(
+                    row
+                );
+
+            }
+        );
+
+    }
+
+
+
+    // =====================================================
+    // QUANTITY STATUS
+    // =====================================================
+
+    function getQuantityClass(
+        quantity,
+        minimumQuantity
+    ) {
+
+        if (
+            quantity <= minimumQuantity
+        ) {
+
+            return "quantity-danger";
+
+        }
+
+
+        if (
+            quantity <=
+            minimumQuantity + 5
+        ) {
+
+            return "quantity-warning";
+
+        }
+
+
+        return "quantity-normal";
+
+    }
+
+
+
+    // =====================================================
+    // EXPIRY STATUS
+    // =====================================================
+
+    function getExpiryClass(
+        expiryDate
+    ) {
+
+        if (!expiryDate) {
+
+            return "";
+
+        }
+
+
+        const today =
+            new Date();
+
+
+        const expiry =
+            new Date(
+                expiryDate
+            );
+
+
+        const difference =
+            expiry.getTime() -
+            today.getTime();
+
+
+        const days =
+            difference /
+            (1000 * 60 * 60 * 24);
+
+
+        if (days < 0) {
+
+            return "expiry-danger";
+
+        }
+
+
+        if (days <= 30) {
+
+            return "expiry-warning";
+
+        }
+
+
+        return "expiry-normal";
+
+    }
+
+
+
+    // =====================================================
+    // OPEN ADD MODAL
+    // =====================================================
+
+    function openAddModal() {
+
+        if (!canManageStock) {
+
+            return;
+
+        }
+
+
+        stockForm.reset();
+
+
+        document.getElementById(
+            "stockId"
+        ).value = "";
+
+
+        document.getElementById(
+            "modalTitle"
+        ).textContent =
+            "Add Stock";
+
+
+        modal.classList.add(
+            "show"
+        );
+
+    }
+
+
+
+    // =====================================================
+    // CLOSE MODAL
+    // =====================================================
+
+    function closeModal() {
+
+        modal.classList.remove(
+            "show"
+        );
+
+
+        stockForm.reset();
+
+    }
+
+
+
+    // =====================================================
+    // EDIT STOCK
+    // =====================================================
+
+    async function editStock(id) {
+
+        if (!canManageStock) {
+
+            return;
+
+        }
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/stock/${id}`
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await getErrorMessage(
+                        response
+                    )
+                );
+
+            }
+
+
+            const stock =
+                await response.json();
+
+
+            document.getElementById(
+                "stockId"
+            ).value =
+                stock.id;
+
+
+            document.getElementById(
+                "medicineName"
+            ).value =
+                stock.medicineName || "";
+
+
+            document.getElementById(
+                "quantity"
+            ).value =
+                stock.quantity;
+
+
+            document.getElementById(
+                "minimumQuantity"
+            ).value =
+                stock.minimumQuantity;
+
+
+            document.getElementById(
+                "expiryDate"
+            ).value =
+                stock.expiryDate || "";
+
+
+            document.getElementById(
+                "modalTitle"
+            ).textContent =
+                "Edit Stock";
+
+
+            modal.classList.add(
+                "show"
+            );
+
+
+        } catch (error) {
+
+            showMessage(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+
+    // =====================================================
+    // SAVE STOCK
+    // CREATE / UPDATE
+    // =====================================================
+
+    stockForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+
+            if (!canManageStock) {
+
+                return;
+
+            }
+
+
+            const id =
+                document.getElementById(
+                    "stockId"
+                ).value;
+
+
+            const stock = {
+
+                medicineName:
+                    document.getElementById(
+                        "medicineName"
+                    ).value.trim(),
+
+                quantity:
+                    Number(
+                        document.getElementById(
+                            "quantity"
+                        ).value
+                    ),
+
+                minimumQuantity:
+                    Number(
+                        document.getElementById(
+                            "minimumQuantity"
+                        ).value
+                    ),
+
+                expiryDate:
+                document.getElementById(
+                    "expiryDate"
+                ).value
+
+            };
+
+
+
+            if (!stock.medicineName) {
+
+                showMessage(
+                    "Medicine name is required.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+
+            if (
+                stock.quantity < 0
+            ) {
+
+                showMessage(
+                    "Quantity cannot be negative.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+
+            if (
+                stock.minimumQuantity < 0
+            ) {
+
+                showMessage(
+                    "Minimum quantity cannot be negative.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+
+            if (!stock.expiryDate) {
+
+                showMessage(
+                    "Expiry date is required.",
+                    "error"
+                );
+
+                return;
+
+            }
+
+
+
+            try {
+
+                let response;
+
+
+
+                if (id) {
+
+                    response =
+                        await fetch(
+                            `/api/stock/${id}`,
+                            {
+
+                                method: "PUT",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify(
+                                        stock
+                                    )
+
+                            }
+                        );
+
+                }
+
+                else {
+
+                    response =
+                        await fetch(
+                            "/api/stock",
+                            {
+
+                                method: "POST",
+
+                                headers: {
+                                    "Content-Type":
+                                        "application/json"
+                                },
+
+                                body:
+                                    JSON.stringify(
+                                        stock
+                                    )
+
+                            }
+                        );
+
+                }
+
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        await getErrorMessage(
+                            response
+                        )
+                    );
+
+                }
+
+
+
+                closeModal();
+
+
+
+                showMessage(
+                    id
+                        ? "Stock updated successfully."
+                        : "Stock added successfully.",
+                    "success"
+                );
+
+
+
+                await loadStock();
+
+
+
+            } catch (error) {
+
+                showMessage(
+                    error.message,
+                    "error"
+                );
+
+            }
+
+        }
+    );
+
+
+
+    // =====================================================
+    // DELETE STOCK
+    // =====================================================
+
+    async function deleteStock(id) {
+
+        if (!canManageStock) {
+
+            return;
+
+        }
+
+
+        if (
+            !confirm(
+                "Are you sure you want to delete this stock record?"
+            )
+        ) {
+
+            return;
+
+        }
+
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/stock/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                throw new Error(
+                    await getErrorMessage(
+                        response
+                    )
+                );
+
+            }
+
+
+            showMessage(
+                "Stock deleted successfully.",
+                "success"
+            );
+
+
+            await loadStock();
+
+
+
+        } catch (error) {
+
+            showMessage(
+                error.message,
+                "error"
+            );
+
+        }
+
+    }
+
+
+
+    // =====================================================
+    // ERROR MESSAGE
+    // =====================================================
+
+    async function getErrorMessage(
+        response
+    ) {
+
+        try {
+
+            const data =
+                await response.json();
+
+
+            if (data.error) {
+
+                return data.error;
+
+            }
+
+
+            if (data.message) {
+
+                return data.message;
+
+            }
+
+
+        } catch (error) {
+
+            // Response is not JSON
+
+        }
+
+
+        return (
+                await response.text()
+            ) ||
+            "Unable to complete the operation.";
+
+    }
+
+
+
+    // =====================================================
+    // MESSAGE
+    // =====================================================
+
+    function showMessage(
+        message,
+        type
+    ) {
+
+        messageBox.textContent =
+            message;
+
+
+        messageBox.className =
+            "message " + type;
+
+
+        setTimeout(
+            function() {
+
+                messageBox.className =
+                    "message";
+
+                messageBox.textContent =
+                    "";
+
+            },
+            5000
+        );
+
+    }
+
+
+
+    // =====================================================
+    // ESCAPE HTML
+    // =====================================================
+
+    function escapeHtml(
+        value
+    ) {
+
+        if (
+            value === null ||
+            value === undefined
+        ) {
+
+            return "";
+
+        }
+
+
+        return String(value)
+
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+
+            .replace(
+                /</g,
+                "&lt;"
+            )
+
+            .replace(
+                />/g,
+                "&gt;"
+            )
+
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+
+    // =====================================================
+    // INITIAL LOAD
+    // =====================================================
+
+    loadStock();
+
+
+
+    // =====================================================
+    // CLOSE MODAL WHEN CLICKING OUTSIDE
+    // =====================================================
+
+    modal.addEventListener(
+        "click",
+        function(event) {
+
+            if (
+                event.target === modal
+            ) {
+
+                closeModal();
+
+            }
+
+        }
+    );
+
+</script>
+
+
+</body>
+
+</html>

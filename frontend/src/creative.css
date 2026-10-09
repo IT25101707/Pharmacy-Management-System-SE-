@@ -1,0 +1,342 @@
+/* ==========================================================================
+   Health Care Pharmacy OS — "Dispensary" theme
+   Loaded AFTER styles.css (see main.jsx). Safe to delete this file to go back.
+
+   Idea: every module has its own colour (like coloured shelf labels in a
+   pharmacy). The sidebar icon, the page banner, the main button and the
+   focus ring all follow the colour of the page you are on.
+   Signature shape: the two-tone capsule.
+   ========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&display=swap');
+
+/* ---------- 1. Tokens ---------- */
+html[data-theme]{
+  --font-body:'Figtree',system-ui,sans-serif;
+  --font-display:'Bricolage Grotesque','Figtree',system-ui,sans-serif;
+
+  /* module colours (bright = on dark ink, deep = text on light surfaces) */
+  --c-teal:#14b8a6;   --c-amber:#f5b53d;  --c-indigo:#6f7bff; --c-coral:#ff6b78;
+  --c-green:#34c77b;  --c-violet:#a47bff; --c-sky:#3ba9f0;    --c-orange:#ff8a4c;
+
+  /* default accent = dashboard teal */
+  --accent:#0b9487; --accent-2:#1a6fb5; --accent-deep:#087266; --on-accent:#fff;
+  --ink-deep:#17123a;
+}
+html[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f3f1fb; --surface:#ffffff; --surface-2:#f7f5fd; --ink:#1c1840; --ink-2:#5e5a84;
+  --line:#e4e0f3; --shadow:0 1px 2px rgba(40,25,110,.06),0 14px 34px -16px rgba(40,25,110,.22);
+  --good-t:#137a43; --warn-t:#9a5b00; --bad-t:#c42f3d;
+  --ring:color-mix(in srgb,var(--accent) 28%,transparent);
+}
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#100d24; --surface:#1b1740; --surface-2:#241f50; --ink:#f2effd; --ink-2:#aaa4d2;
+  --line:#322c66; --shadow:0 1px 0 rgba(255,255,255,.04) inset,0 18px 40px -18px rgba(0,0,0,.6);
+  --good-t:#5fe0a0; --warn-t:#ffd27a; --bad-t:#ff8f99;
+  --ring:color-mix(in srgb,var(--accent) 45%,transparent);
+  --accent-deep:#9ee7de;
+}
+
+/* one accent per module — follows the active sidebar link */
+html[data-theme]:has(nav a[href="/inventory"].active){--accent:#f2a900;--accent-2:#f0731a;--accent-deep:#9a5b00;--on-accent:#2a1800}
+html[data-theme]:has(nav a[href="/suppliers"].active){--accent:#4b5bdc;--accent-2:#8a4fe0;--accent-deep:#3541b8}
+html[data-theme]:has(nav a[href="/prescriptions"].active){--accent:#e8505b;--accent-2:#f08a3c;--accent-deep:#bd2f3b}
+html[data-theme]:has(nav a[href="/pos"].active){--accent:#1ba35a;--accent-2:#0b9487;--accent-deep:#137a43}
+html[data-theme]:has(nav a[href="/customers"].active){--accent:#7b4cf0;--accent-2:#d252a8;--accent-deep:#5a30c8}
+html[data-theme]:has(nav a[href="/finance"].active){--accent:#0b84c9;--accent-2:#4b5bdc;--accent-deep:#08679f}
+html[data-theme]:has(nav a[href="/users"].active){--accent:#d9582b;--accent-2:#e8505b;--accent-deep:#a8401c}
+html[data-theme]:has(nav a[href="/operations"].active){--accent:#0f8a9d;--accent-2:#4b5bdc;--accent-deep:#0b6a79}
+html[data-theme]:has(nav a[href="/settings"].active){--accent:#5b5890;--accent-2:#34305f;--accent-deep:#4a4780}
+html[data-theme="dark"]:has(nav a[href="/inventory"].active){--accent-deep:#ffd27a}
+html[data-theme="dark"]:has(nav a[href="/suppliers"].active){--accent-deep:#aab3ff}
+html[data-theme="dark"]:has(nav a[href="/prescriptions"].active){--accent-deep:#ff9aa3}
+html[data-theme="dark"]:has(nav a[href="/pos"].active){--accent-deep:#7be7ac}
+html[data-theme="dark"]:has(nav a[href="/customers"].active){--accent-deep:#c8aeff}
+html[data-theme="dark"]:has(nav a[href="/finance"].active){--accent-deep:#8ccdf7}
+html[data-theme="dark"]:has(nav a[href="/users"].active){--accent-deep:#ffab8a}
+html[data-theme="dark"]:has(nav a[href="/operations"].active){--accent-deep:#8fdbe8}
+html[data-theme="dark"]:has(nav a[href="/settings"].active){--accent-deep:#c9c6f2}
+
+/* ---------- 2. Base ---------- */
+html[data-theme],html[data-theme][data-theme] body,html[data-theme] #root{background:var(--bg)!important;color:var(--ink)!important;font-family:var(--font-body)!important}
+html[data-theme][data-theme] body{background-image:none!important}
+html[data-theme][data-theme] body:before{display:none!important}
+html[data-theme] h1,html[data-theme] h2,html[data-theme] h3,html[data-theme] .brand b,html[data-theme] .card strong,html[data-theme] .ref-stat strong,html[data-theme] .ref-cat strong{font-family:var(--font-display)!important;letter-spacing:-.02em}
+html[data-theme][data-theme] body .content :is(h1,h2,h3,b,strong,td){color:inherit}
+html[data-theme][data-theme] body p,html[data-theme][data-theme] body small,html[data-theme][data-theme] body .cell-sub{color:var(--ink-2)!important}
+html[data-theme] ::selection{background:var(--accent);color:var(--on-accent)}
+html[data-theme] :focus-visible{outline:3px solid var(--ring)!important;outline-offset:2px}
+html[data-theme] table,html[data-theme] .chartvalue{font-variant-numeric:tabular-nums}
+
+/* eyebrow: sentence case with a small capsule instead of tracked caps */
+html[data-theme][data-theme] body .eyebrow{display:inline-flex;align-items:center;gap:8px;text-transform:lowercase;letter-spacing:0;font-size:12.5px;font-weight:700;color:var(--accent-deep)!important}
+html[data-theme][data-theme] body .eyebrow::first-letter{text-transform:uppercase}
+html[data-theme][data-theme] body .eyebrow::before{content:"";width:18px;height:8px;border-radius:99px;background:linear-gradient(90deg,var(--accent) 50%,var(--accent-2) 50%)}
+
+/* ---------- 3. Sidebar ---------- */
+html[data-theme][data-theme] body .shell aside{background:linear-gradient(180deg,#1c1745,#120e30)!important;border:0!important;color:#e9e6fb;box-shadow:12px 0 40px -24px rgba(20,10,70,.55)}
+html[data-theme][data-theme] body .brand b{color:#fff!important;font-size:17px}
+html[data-theme][data-theme] body .brand span{color:#a9a3d6!important}
+html[data-theme][data-theme] body .brandmark{width:46px;height:46px;border-radius:15px!important;color:#fff!important;font:800 14px var(--font-display)!important;
+  background:linear-gradient(135deg,var(--c-teal) 50%,var(--c-coral) 50%)!important;box-shadow:0 8px 20px -6px rgba(20,184,166,.55)!important;text-shadow:0 1px 2px rgba(0,0,0,.25)}
+html[data-theme][data-theme] body nav{gap:3px}
+html[data-theme][data-theme] body nav a{--c:var(--c-teal);color:#bdb8e6!important;font-weight:600;font-size:14px;padding:7px 10px;border-radius:14px;background:transparent!important;transition:background .2s,color .2s}
+html[data-theme][data-theme] body nav a[href="/inventory"]{--c:var(--c-amber)}
+html[data-theme][data-theme] body nav a[href="/suppliers"]{--c:var(--c-indigo)}
+html[data-theme][data-theme] body nav a[href="/prescriptions"]{--c:var(--c-coral)}
+html[data-theme][data-theme] body nav a[href="/pos"]{--c:var(--c-green)}
+html[data-theme][data-theme] body nav a[href="/customers"]{--c:var(--c-violet)}
+html[data-theme][data-theme] body nav a[href="/finance"]{--c:var(--c-sky)}
+html[data-theme][data-theme] body nav a[href="/users"]{--c:var(--c-orange)}
+html[data-theme][data-theme] body nav a[href="/operations"]{--c:#4fd1e6}
+html[data-theme][data-theme] body nav a[href="/settings"]{--c:#b7b3e6}
+html[data-theme][data-theme] body nav a svg{box-sizing:border-box;width:32px;height:32px;padding:7px;border-radius:10px;flex:none;color:var(--c);background:color-mix(in srgb,var(--c) 20%,transparent);transition:background .2s,color .2s}
+html[data-theme][data-theme] body nav a:hover{background:rgba(255,255,255,.07)!important;color:#fff!important;transform:none}
+html[data-theme][data-theme] body nav a.active{background:rgba(255,255,255,.11)!important;color:#fff!important}
+html[data-theme][data-theme] body nav a.active svg{background:var(--c);color:#17123a}
+html[data-theme][data-theme] body nav a.active::after{content:"";margin-left:auto;width:16px;height:7px;border-radius:99px;background:var(--c)}
+html[data-theme][data-theme] body .role-chip{background:rgba(255,255,255,.08)!important;border:0!important;color:#d8d4f6!important;border-radius:99px;font-size:12px;font-weight:600;padding:6px 12px}
+html[data-theme][data-theme] body .profile{border-top:1px solid rgba(255,255,255,.1)!important;color:#fff}
+html[data-theme][data-theme] body .profile small{color:#a9a3d6!important}
+html[data-theme][data-theme] body .mini-avatar{background:linear-gradient(135deg,var(--c-violet),var(--c-coral))!important;color:#fff!important;font-weight:800}
+html[data-theme][data-theme] body .profile button{background:rgba(255,255,255,.09)!important;border:0!important;color:#fff!important}
+
+/* ---------- 4. Header ---------- */
+html[data-theme][data-theme] body .shell main header{background:color-mix(in srgb,var(--bg) 82%,transparent)!important;border-bottom:1px solid var(--line)!important;backdrop-filter:blur(14px)}
+html[data-theme][data-theme] body .shell header h3{font-size:19px;color:var(--ink)!important}
+html[data-theme][data-theme] body .bell,html[data-theme][data-theme] body .theme-toggle,html[data-theme][data-theme] body .iconbtn{background:var(--surface)!important;border:1px solid var(--line)!important;color:var(--ink)!important;border-radius:99px!important;box-shadow:var(--shadow)}
+html[data-theme][data-theme] body .theme-toggle{width:39px;height:39px;display:grid;place-items:center;padding:0;cursor:pointer}
+html[data-theme][data-theme] body .bell span{background:var(--c-coral)!important;color:#fff!important}
+html[data-theme][data-theme] body .online{color:var(--good-t)!important;font-weight:600}
+html[data-theme][data-theme] body .online{animation:pulse 2.6s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.55}}
+
+/* ---------- 5. Surfaces ---------- */
+html[data-theme][data-theme] body :is(.glass,.panel,.card,.cart,.dialog,.settings-card,.notification-panel,.ref-report,.ref-product-panel){
+  background:var(--surface)!important;border:1px solid var(--line)!important;border-radius:22px!important;box-shadow:var(--shadow)!important;color:var(--ink)!important;backdrop-filter:none}
+html[data-theme][data-theme] body .content{background:transparent!important}
+html[data-theme][data-theme] body .content:before{display:none!important}
+html[data-theme][data-theme] body .card.card:hover{transform:translateY(-3px)}
+
+/* page banner = the module's colour */
+html[data-theme][data-theme] body .content>.head.head,html[data-theme][data-theme] body .content>.dash-title.dash-title,html[data-theme][data-theme] body .content>.hero.hero{
+  position:relative;overflow:hidden;border:0!important;border-radius:28px!important;padding:30px 34px;
+  background:linear-gradient(115deg,var(--accent),var(--accent-2))!important;color:var(--on-accent)!important;
+  box-shadow:0 22px 44px -22px var(--accent)!important}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title,.hero)>*{position:relative;z-index:1}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title,.hero) :is(h1,h2,p,span,.eyebrow){color:var(--on-accent)!important}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title,.hero) h1{font-size:clamp(28px,3.2vw,40px);margin:8px 0 6px}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title,.hero) p{opacity:.88;max-width:60ch}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title,.hero) .eyebrow::before{background:var(--on-accent);opacity:.8}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title)::before,html[data-theme][data-theme] body .content>:is(.head,.dash-title)::after{
+  content:"";position:absolute;border-radius:99px;pointer-events:none;z-index:0;
+  background:linear-gradient(90deg,rgba(255,255,255,.30) 50%,rgba(255,255,255,.13) 50%)}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title)::before{width:230px;height:78px;right:7%;top:-14px;transform:rotate(-28deg)}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title)::after{width:140px;height:48px;right:-18px;bottom:-6px;transform:rotate(24deg)}
+html[data-theme][data-theme] body .content>:is(.head,.dash-title) .primary{background:#fff!important;color:var(--accent-deep)!important;box-shadow:0 10px 24px -10px rgba(0,0,0,.4)!important}
+html[data-theme="dark"][data-theme] body .content>:is(.head,.dash-title) .primary{color:#17123a!important}
+
+/* ---------- 6. Buttons & fields ---------- */
+html[data-theme][data-theme] body :is(.primary,.login form button:not(.secondary),.hero a){
+  background:linear-gradient(115deg,var(--accent),var(--accent-2))!important;color:var(--on-accent)!important;border:0!important;
+  border-radius:99px!important;padding:11px 20px;font-weight:700;box-shadow:0 10px 22px -10px var(--accent)!important;transition:transform .15s,box-shadow .15s}
+html[data-theme][data-theme] body .primary:hover{transform:translateY(-1px);box-shadow:0 14px 26px -10px var(--accent)!important}
+html[data-theme][data-theme] body :is(.secondary,.table button,.form button:not(.primary),.dialog-actions button,.photo-actions button,.upload-btn,.dialog-x){
+  background:var(--surface-2)!important;color:var(--ink)!important;border:1px solid var(--line)!important;border-radius:99px!important;font-weight:600}
+html[data-theme][data-theme] body .secondary:hover,html[data-theme][data-theme] body .table button:hover{border-color:var(--accent)!important;color:var(--accent-deep)!important}
+html[data-theme][data-theme] body .danger-btn{background:color-mix(in srgb,var(--c-coral) 16%,var(--surface))!important;color:var(--bad-t)!important;border:1px solid color-mix(in srgb,var(--c-coral) 35%,transparent)!important;border-radius:99px!important}
+html[data-theme][data-theme] body :is(.form input,.form select,.form textarea,.login input,select,textarea,.totals input,.search,.cart input){
+  background:var(--surface-2)!important;color:var(--ink)!important;border:1.5px solid var(--line)!important;border-radius:14px!important}
+html[data-theme][data-theme] body :is(.form input,.form select,.form textarea,.login input,select,textarea,.cart input):focus{border-color:var(--accent)!important;box-shadow:0 0 0 4px var(--ring)!important;outline:none!important}
+html[data-theme][data-theme] body .search:focus-within{border-color:var(--accent)!important;box-shadow:0 0 0 4px var(--ring)!important}
+html[data-theme][data-theme] body .search input{background:transparent!important;border:0!important;box-shadow:none!important}
+html[data-theme][data-theme] body :is(.form label,.login label,.cart>label){color:var(--ink-2)!important;font-weight:600;text-transform:none}
+html[data-theme][data-theme] body .editing-form{border-color:var(--accent)!important;box-shadow:0 0 0 4px var(--ring),var(--shadow)!important}
+html[data-theme][data-theme] body .editing-form h3{color:var(--accent-deep)!important}
+
+/* ---------- 7. Tables, pills ---------- */
+html[data-theme][data-theme] body th{background:var(--surface-2)!important;color:var(--ink-2)!important;text-transform:none;letter-spacing:0;font-size:12.5px;font-weight:700;border-color:var(--line)!important}
+html[data-theme][data-theme] body td{color:var(--ink)!important;border-color:var(--line)!important}
+html[data-theme][data-theme] body tbody tr{transition:background .15s}
+html[data-theme][data-theme] body tbody tr:hover{background:color-mix(in srgb,var(--accent) 7%,transparent)!important}
+html[data-theme][data-theme] body :is(.status-pill,.badge){display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:99px;font-size:12px;font-weight:700;border:0!important;
+  background:color-mix(in srgb,var(--accent) 14%,var(--surface))!important;color:var(--accent-deep)!important}
+html[data-theme][data-theme] body .status-pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+html[data-theme][data-theme] body :is(.status-pill.instock,.badge.good){background:color-mix(in srgb,var(--c-green) 16%,var(--surface))!important;color:var(--good-t)!important}
+html[data-theme][data-theme] body :is(.status-pill.lowstock,.badge.warn){background:color-mix(in srgb,var(--c-amber) 22%,var(--surface))!important;color:var(--warn-t)!important}
+html[data-theme][data-theme] body :is(.status-pill.outstock,.badge.bad,.badge.danger){background:color-mix(in srgb,var(--c-coral) 16%,var(--surface))!important;color:var(--bad-t)!important}
+html[data-theme][data-theme] body .healthy{color:var(--good-t)!important}
+html[data-theme][data-theme] body .risk{color:var(--bad-t)!important}
+
+/* ---------- 8. Dashboard colour ---------- */
+html[data-theme][data-theme] body .ref-stat{--tone:var(--accent);border-radius:22px!important;border:1px solid color-mix(in srgb,var(--tone) 30%,var(--line))!important;
+  background:color-mix(in srgb,var(--tone) 11%,var(--surface))!important;box-shadow:none!important}
+html[data-theme][data-theme] body .ref-stat.blue{--tone:#0b84c9}
+html[data-theme][data-theme] body .ref-stat.yellow{--tone:#f2a900}
+html[data-theme][data-theme] body .ref-stat.red{--tone:#e8505b}
+html[data-theme][data-theme] body .ref-stat.purple{--tone:#7b4cf0}
+html[data-theme][data-theme] body .ref-stat-icon{background:var(--tone)!important;color:#fff!important;border-radius:18px 18px 18px 6px!important;width:50px;height:50px;box-shadow:0 10px 20px -8px var(--tone)}
+html[data-theme][data-theme] body .ref-stat.yellow .ref-stat-icon{color:#2a1800!important}
+html[data-theme][data-theme] body .ref-stat strong{font-size:30px;color:var(--ink)!important}
+html[data-theme][data-theme] body .ref-stat span{color:var(--ink-2)!important;font-weight:600}
+html[data-theme][data-theme] body .ref-stat::before,html[data-theme][data-theme] body .ref-cat::before,html[data-theme][data-theme] body .product::before{display:none!important}
+
+html[data-theme][data-theme] body .ref-cat{--tone:var(--accent);border-radius:20px!important;border:1px solid color-mix(in srgb,var(--tone) 30%,var(--line))!important;
+  background:color-mix(in srgb,var(--tone) 12%,var(--surface))!important;box-shadow:none!important}
+html[data-theme][data-theme] body .ref-cat.cat-0{--tone:#0b9487}
+html[data-theme][data-theme] body .ref-cat.cat-1{--tone:#f2a900}
+html[data-theme][data-theme] body .ref-cat.cat-2{--tone:#4b5bdc}
+html[data-theme][data-theme] body .ref-cat.cat-3{--tone:#e8505b}
+html[data-theme][data-theme] body .ref-cat.cat-4{--tone:#1ba35a}
+html[data-theme][data-theme] body .ref-cat.cat-5{--tone:#7b4cf0}
+html[data-theme][data-theme] body .ref-cat.cat-6{--tone:#0b84c9}
+html[data-theme][data-theme] body .ref-cat.cat-7{--tone:#d9582b}
+html[data-theme][data-theme] body .ref-cat span{color:var(--ink)!important;font-weight:700}
+html[data-theme][data-theme] body .ref-cat strong{font-size:34px;color:var(--ink)!important}
+html[data-theme][data-theme] body .more-dot{color:var(--tone,var(--ink-2))!important}
+
+html[data-theme][data-theme] body .chartbar{background:linear-gradient(180deg,var(--accent),var(--accent-2))!important;border-radius:12px 12px 4px 4px!important;box-shadow:none!important}
+html[data-theme][data-theme] body .chartvalue{color:var(--ink-2)!important;font-weight:700}
+html[data-theme][data-theme] body :is(.compact-alert,.notification,.recent-row,.branch-health-row,.notice-row){background:var(--surface-2)!important;border:1px solid var(--line)!important;border-radius:16px!important;color:var(--ink)!important}
+html[data-theme][data-theme] body .compact-alert strong{color:var(--bad-t)!important}
+html[data-theme][data-theme] body .branch-dot{background:color-mix(in srgb,var(--accent) 16%,var(--surface))!important;color:var(--accent-deep)!important;border-radius:12px 12px 12px 4px!important}
+html[data-theme][data-theme] body .notification svg,html[data-theme][data-theme] body .setting-icon,html[data-theme][data-theme] body .customer-card svg{color:var(--accent-deep)!important}
+
+/* POS tiles */
+html[data-theme][data-theme] body .product.product{border-radius:20px!important;box-shadow:var(--shadow)!important;border:1px solid var(--line)!important;transition:transform .15s,border-color .15s}
+html[data-theme][data-theme] body .product.product:hover{transform:translateY(-3px);border-color:var(--accent)!important}
+html[data-theme][data-theme] body .product strong{color:var(--accent-deep)!important}
+html[data-theme][data-theme] body .modal{background:rgba(18,12,52,.62)!important;backdrop-filter:blur(8px)}
+html[data-theme][data-theme] body .toast{background:var(--ink-deep)!important;color:#fff!important;border:0!important;border-radius:16px!important;box-shadow:0 18px 40px -14px rgba(0,0,0,.5)}
+html[data-theme][data-theme] body .toast svg{color:var(--c-teal)!important}
+
+/* ---------- 9. Login ---------- */
+html[data-theme][data-theme] body .login{position:relative;overflow:hidden;background:
+  radial-gradient(60% 70% at 12% 8%,rgba(111,123,255,.30),transparent 60%),
+  radial-gradient(50% 60% at 95% 100%,rgba(255,107,120,.26),transparent 60%),var(--ink-deep)!important;color:#fff!important}
+html[data-theme][data-theme] body .login::before,html[data-theme][data-theme] body .login::after,html[data-theme][data-theme] body .login section::before,html[data-theme][data-theme] body .login section::after{
+  content:"";position:absolute;border-radius:99px;pointer-events:none;border:0;box-shadow:none;inset:auto}
+html[data-theme][data-theme] body .login::before{width:420px;height:150px;right:-70px;top:9%;transform:rotate(-32deg);background:linear-gradient(90deg,var(--c-coral) 50%,#fff 50%);opacity:.95}
+html[data-theme][data-theme] body .login::after{width:300px;height:108px;left:-60px;bottom:6%;transform:rotate(28deg);background:linear-gradient(90deg,var(--c-teal) 50%,var(--c-amber) 50%);opacity:.9}
+html[data-theme][data-theme] body .login section::before{width:160px;height:58px;left:46%;top:-12%;transform:rotate(-18deg);background:linear-gradient(90deg,var(--c-violet) 50%,#e9e6fb 50%);opacity:.8}
+html[data-theme][data-theme] body .login section::after{display:none}
+html[data-theme][data-theme] body .login section,html[data-theme][data-theme] body .login form{position:relative;z-index:2}
+html[data-theme][data-theme] body .login section :is(h1,p,span){color:#fff!important}
+html[data-theme][data-theme] body .login section p{color:#cfcaf0!important;max-width:46ch}
+html[data-theme][data-theme] body .login h1{font-size:clamp(46px,5.4vw,80px);line-height:1}
+html[data-theme][data-theme] body .login h1 em{background:none!important;-webkit-text-fill-color:currentColor;color:var(--c-amber)!important}
+html[data-theme][data-theme] body .login .eyebrow{color:#fff!important}
+html[data-theme][data-theme] body .login .eyebrow::before{background:linear-gradient(90deg,var(--c-teal) 50%,var(--c-coral) 50%)}
+html[data-theme][data-theme] body .logo3d{background:linear-gradient(135deg,var(--c-teal) 50%,var(--c-coral) 50%)!important;color:#fff!important;border-radius:18px!important;box-shadow:0 14px 30px -10px rgba(20,184,166,.6)!important}
+html[data-theme][data-theme] body .login .orb{display:none}
+html[data-theme][data-theme] body .login-float{background:rgba(255,255,255,.10)!important;border:1px solid rgba(255,255,255,.22)!important;color:#fff!important;backdrop-filter:blur(10px);box-shadow:none!important}
+html[data-theme][data-theme] body .login-float :is(b,span){color:#fff!important}
+html[data-theme][data-theme] body .login-float svg{color:var(--c-amber)!important}
+html[data-theme][data-theme] body .login form.glass{background:var(--surface)!important;color:var(--ink)!important;border-radius:28px!important;padding:36px;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)!important}
+html[data-theme][data-theme] body .login form :is(h2){color:var(--ink)!important;font-family:var(--font-display)}
+html[data-theme][data-theme] body .login form p,html[data-theme][data-theme] body .login form small{color:var(--ink-2)!important}
+html[data-theme][data-theme] body .login form .eyebrow{color:var(--accent-deep)!important}
+html[data-theme][data-theme] body .shield{background:linear-gradient(135deg,var(--c-teal),var(--c-sky))!important;color:#fff!important;border-radius:16px 16px 16px 5px!important}
+
+/* ---------- 9b. Clean-up of older decorations ---------- */
+/* old cross watermarks from styles.css */
+html[data-theme][data-theme] body :is(.form.glass,.table.glass,.panel.glass)::after,
+html[data-theme][data-theme] body .shell aside::after,
+html[data-theme][data-theme] body .shell main::after{content:none!important}
+/* section heads inside cards stay flat (only the page banner is coloured) */
+html[data-theme][data-theme] body :is(.panel,.ref-report,.ref-product-panel,.glass,.table-card) .head.head{background:transparent!important;border:0!important;box-shadow:none!important;padding:0 0 14px;border-radius:0!important}
+html[data-theme][data-theme] body :is(.panel,.ref-report,.ref-product-panel,.glass,.table-card) .head.head::before,
+html[data-theme][data-theme] body :is(.panel,.ref-report,.ref-product-panel,.glass,.table-card) .head.head::after{display:none}
+html[data-theme][data-theme] body :is(.panel,.ref-report,.ref-product-panel,.glass,.table-card) .head h1{font-size:22px;color:var(--ink)!important}
+html[data-theme][data-theme] body :is(.panel,.ref-report,.ref-product-panel,.glass,.table-card) .head p{color:var(--ink-2)!important}
+html[data-theme][data-theme] body :is(.panel,.ref-report,.ref-product-panel,.glass,.table-card) .head .eyebrow{color:var(--accent-deep)!important}
+html[data-theme][data-theme] body .ref-report{background:transparent!important;border:0!important;box-shadow:none!important;padding:0!important}
+html[data-theme][data-theme] body .ref-report .head.head{padding:0 4px 14px}
+html[data-theme][data-theme] body .ref-stat strong{font-size:24px}
+html[data-theme][data-theme] body .login-float{display:grid;grid-template-columns:auto 1fr;column-gap:12px;align-items:center;padding:14px 18px;border-radius:20px!important}
+html[data-theme][data-theme] body .login-float span{grid-column:2}
+
+/* page canvas: the old stylesheet painted these light even in dark mode */
+html[data-theme][data-theme] body .shell,html[data-theme][data-theme] body .shell main{background:var(--bg)!important}
+html[data-theme][data-theme] body .table:not(.glass){background:transparent!important;border:0!important;box-shadow:none!important}
+html[data-theme][data-theme] body .table-card{padding:22px}
+
+/* more leftovers from the old light/dark layers */
+html[data-theme][data-theme] body .eyebrow{background:transparent!important;padding:0!important;border:0!important;box-shadow:none!important}
+html[data-theme][data-theme] body :is(table,tbody tr,thead tr,td){background:transparent!important}
+html[data-theme][data-theme] body tbody tr:hover{background:color-mix(in srgb,var(--accent) 8%,transparent)!important}
+html[data-theme][data-theme] body :is(.ref-cat,.ref-stat) small{color:var(--ink-2)!important}
+html[data-theme][data-theme] body :is(.compact-alert,.notification,.recent-row,.branch-health-row) :is(b,strong:not(.risk):not(.healthy)){color:var(--ink)!important}
+html[data-theme][data-theme] body :is(.compact-alert,.notification,.recent-row,.branch-health-row) span{color:var(--ink-2)!important}
+html[data-theme][data-theme] body .compact-alert strong{color:var(--bad-t)!important}
+
+html[data-theme][data-theme] body :is(.panel,.ref-report,.ref-product-panel,.glass,.table-card) .head.head{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+html[data-theme][data-theme] body td :is(b,strong){color:var(--ink)!important}
+
+/* ---------- 9c. Route-specific leftovers & receipts ---------- */
+/* old finance/users rules are very specific, so these use extra weight on purpose */
+html[data-theme][data-theme][data-theme][data-theme] body .grid .card:nth-child(1){background:color-mix(in srgb,#0b84c9 12%,var(--surface))!important}
+html[data-theme][data-theme][data-theme][data-theme] body .grid .card:nth-child(2){background:color-mix(in srgb,#1ba35a 12%,var(--surface))!important}
+html[data-theme][data-theme][data-theme][data-theme] body .grid .card:nth-child(3){background:color-mix(in srgb,#f2a900 16%,var(--surface))!important}
+html[data-theme][data-theme][data-theme][data-theme] body .dash-two .form:is(:first-child,:last-child){box-shadow:var(--shadow)!important}
+html[data-theme][data-theme][data-theme][data-theme] body .ranking>div{background:var(--surface-2)!important;border-color:var(--line)!important}
+/* the invoice is a paper receipt: always white with dark ink, in both themes */
+html[data-theme][data-theme] body :is(.invoice,.receipt){background:#fff!important;color:#17123a!important;border:1px solid #e4e0f3!important;border-radius:24px!important;box-shadow:0 30px 70px -24px rgba(10,5,40,.55)!important}
+html[data-theme][data-theme] body :is(.invoice,.receipt) :is(h1,h2,h3,b,strong,td){color:#17123a!important}
+html[data-theme][data-theme] body :is(.invoice,.receipt) :is(p,small,span,.thanks){color:#5e5a84!important}
+html[data-theme][data-theme] body :is(.invoice,.receipt) th{background:#f3f1fb!important;color:#5e5a84!important}
+html[data-theme][data-theme] body :is(.invoice,.receipt) :is(td,th){border-color:#e4e0f3!important}
+html[data-theme][data-theme] body :is(.invoice,.receipt) .eyebrow{color:#3541b8!important}
+
+/* ---------- 10. Print + motion + small screens ---------- */
+@media print{
+  html[data-theme][data-theme] body #print-invoice,html[data-theme][data-theme] body #print-invoice *{background:#fff!important;color:#111!important;box-shadow:none!important;border-color:#ddd!important}
+  html[data-theme][data-theme] body #print-invoice .eyebrow::before{display:none}
+}
+@media(max-width:950px){
+  html[data-theme][data-theme] body .content>:is(.head,.dash-title){padding:24px 22px}
+  html[data-theme][data-theme] body .login::before{width:280px;height:100px;top:3%}
+}
+@media(prefers-reduced-motion:reduce){
+  html[data-theme] *,html[data-theme] *::before,html[data-theme] *::after{animation:none!important;transition:none!important}
+}
+
+/* ==========================================================================
+   Live status + real-time validation (works with live.jsx / validation.jsx)
+   ========================================================================== */
+html[data-theme][data-theme] body .live-status{display:inline-flex;align-items:center;gap:8px;font-size:12.5px;font-weight:700;padding:7px 13px;border-radius:99px;
+  background:var(--surface);border:1px solid var(--line);color:var(--good-t);box-shadow:var(--shadow);white-space:nowrap}
+html[data-theme][data-theme] body .live-status i{width:8px;height:8px;border-radius:50%;background:currentColor;position:relative}
+html[data-theme][data-theme] body .live-status.on i::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid currentColor;opacity:.5;animation:livering 2s ease-out infinite}
+html[data-theme][data-theme] body .live-status.off{color:var(--bad-t)}
+@keyframes livering{from{transform:scale(.5);opacity:.7}to{transform:scale(1.6);opacity:0}}
+
+/* field states */
+html[data-theme][data-theme] body :is(input,select,textarea).fv-invalid{border-color:var(--c-coral)!important;background:color-mix(in srgb,var(--c-coral) 7%,var(--surface-2))!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--c-coral) 16%,transparent)!important}
+html[data-theme][data-theme] body :is(input,select,textarea).fv-valid{border-color:color-mix(in srgb,var(--c-green) 70%,var(--line))!important}
+html[data-theme][data-theme] body :is(input,select,textarea).fv-warn{border-color:var(--c-amber)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--c-amber) 18%,transparent)!important}
+html[data-theme][data-theme] body :is(input,select,textarea).fv-valid:focus{box-shadow:0 0 0 4px color-mix(in srgb,var(--c-green) 20%,transparent)!important}
+html[data-theme][data-theme] body .fv-hint{display:flex;flex-direction:column;gap:6px;margin-top:6px;font-weight:600;font-size:12.5px;line-height:1.3;text-transform:none;letter-spacing:0}
+html[data-theme][data-theme] body .fv-text{display:flex;align-items:center;gap:6px;animation:fvin .18s ease-out}
+html[data-theme][data-theme] body .fv-text::before{content:"!";display:inline-grid;place-items:center;flex:none;width:16px;height:16px;border-radius:50%;font-size:11px;font-weight:800;color:#fff;background:var(--fv-c,#c42f3d)}
+html[data-theme][data-theme] body .fv-text.error{color:var(--bad-t);--fv-c:var(--c-coral)}
+html[data-theme][data-theme] body .fv-text.warn{color:var(--warn-t);--fv-c:var(--c-amber)}
+@keyframes fvin{from{opacity:0;transform:translateY(-3px)}}
+html[data-theme][data-theme] body .fv-star{color:var(--c-coral);font-weight:800;margin-right:3px}
+
+/* password strength */
+html[data-theme][data-theme] body .fv-strength{display:flex;align-items:center;gap:5px}
+html[data-theme][data-theme] body .fv-strength i{flex:1;height:5px;border-radius:99px;background:var(--line);transition:background .2s}
+html[data-theme][data-theme] body .fv-strength b{margin-left:6px;font-size:12px;min-width:46px;color:var(--ink-2)}
+html[data-theme][data-theme] body .fv-strength.s1 i:nth-child(-n+1){background:var(--c-coral)}
+html[data-theme][data-theme] body .fv-strength.s2 i:nth-child(-n+2){background:var(--c-orange)}
+html[data-theme][data-theme] body .fv-strength.s3 i:nth-child(-n+3){background:var(--c-amber)}
+html[data-theme][data-theme] body .fv-strength.s4 i:nth-child(-n+4){background:var(--c-green)}
+
+/* blocked submit: gentle shake */
+html[data-theme][data-theme] body form.fv-shake{animation:fvshake .38s}
+@keyframes fvshake{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+html[data-theme][data-theme] body .login form .fv-hint{color:inherit}
+@media(prefers-reduced-motion:reduce){html[data-theme] body form.fv-shake{animation:none}}

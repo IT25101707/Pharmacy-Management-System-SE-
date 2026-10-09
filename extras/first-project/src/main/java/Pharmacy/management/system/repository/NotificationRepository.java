@@ -1,0 +1,17 @@
+package Pharmacy.management.system.repository;
+
+import Pharmacy.management.system.entity.Notification;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
+import java.util.Optional;
+
+public interface NotificationRepository
+        extends JpaRepository<Notification, Long> {
+
+    Optional<Notification> findByStockIdAndActiveTrue(Long stockId);
+
+    List<Notification> findByActiveTrueOrderByCreatedAtDesc();
+
+    long countByActiveTrue();
+}
